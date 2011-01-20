@@ -12,20 +12,19 @@ module Gitolite
     attr_accessor :owner, :location, :type, :blob, :email
 
     def initialize(key)
-      unless File.exists?(key)
-        raise "#{key} does not exist!"
-      end
+
+      raise "#{key} does not exist!" unless File.exists?(key)
 
       #Get our owner and location
       File.basename(key) =~ /^(\w+(?:@(?:\w+\.)+\D{2,4})?)(?:@(\w+))?.pub$/i
       @owner = $1
-      @location = $2
+      @location = $2 || ""
 
       #Get parts of the key
       @type, @blob, @email = File.read(key).split
 
       #If the key didn't have an email, just use the owner
-      if @email.empty?
+      if @email.nil?
         @email = @owner
       end
     end
