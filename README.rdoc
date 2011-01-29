@@ -1,5 +1,20 @@
-= gitolite
+= gitolite - Coming soon
 
-This gem is designed to provide a Ruby interface to the gitolite (https://github.com/sitaramc/gitolite) git backend system.  This gem aims to provide all management functionality that is available via the gitolite-admin repository (like SSH keys, repository permissions, etc)
+This gem is designed to provide a Ruby interface to the {gitolite}[https://github.com/sitaramc/gitolite] git backend system.  I am aiming to provide all management functionality that is available via the gitolite-admin repository (like SSH keys, repository permissions, etc)
 
-Coming soon
+== Requirements
+* Ruby 1.8.7 or 1.9.2
+* a working {gitolite}[https://github.com/sitaramc/gitolite] installation
+* the <tt>gitolite-admin</tt> repository checked out locally
+
+== Installation
+
+  gem install gitolite
+
+== Usage
+
+== Caveats
+
+== Documentation
+
+== Future
