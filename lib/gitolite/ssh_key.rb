@@ -28,9 +28,24 @@ module Gitolite
         @email = @owner
       end
     end
+    
+    def initialize(type, blob, email, owner = nil, location = "")
+      @type = type
+      @blob = blob
+      @email = email
+      
+      @owner = owner || email
+      @location = location
+    end
 
     def to_s
       [@type, @blob, @email].join(' ')
+    end
+    
+    def filename
+      file = @owner
+      file << "@#{@location}" unless @location.empty?
+      file << ".pub"
     end
   end
 end
