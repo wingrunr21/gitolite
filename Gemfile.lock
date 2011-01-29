@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    gitolite (0.0.1)
+    gitolite (0.1.0)
       grit (~> 2.4.1)
 
 GEM
@@ -27,5 +27,4 @@ PLATFORMS
 
 DEPENDENCIES
   gitolite!
-  grit (~> 2.4.1)
   rspec (~> 2.4.0)
