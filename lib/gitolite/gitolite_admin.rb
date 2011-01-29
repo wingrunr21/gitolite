@@ -17,10 +17,22 @@ module Gitolite
       @config = Config.new(File.join(path, conf))
     end
 
-    def add_key(key)
+    #Writes all aspects out to the file system
+    #will also stage all changes
+    def save
+      #Process config file
+
+      #Process ssh keys
     end
 
-    def key_exists?(key)
+    #commits all staged changes and pushes back
+    #to origin
+    def apply
+      status = @gl_admin.status
+    end
+
+    #Calls save and apply in order
+    def save_and_apply
     end
 
     private
