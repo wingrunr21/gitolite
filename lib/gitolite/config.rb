@@ -4,7 +4,7 @@ module Gitolite
 
     def initialize(config)
       @repos = {}
-      @groups = {}
+      @groups = Hash.new { |k,v| k[v] = [] }
       process_config(config)
     end
 
@@ -17,15 +17,12 @@ module Gitolite
 
       def initialize(name)
         @name = name
-        @permissions = {}
+        @permissions = Hash.new {|k,v| k[v] = Hash.new{|k2, v2| k2[v2] = [] }}
         @config = {}
       end
 
       def add_permission(perm, refex, users)
         if ALLOWED_PERMISSIONS.include? perm
-          @permissions[perm] ||= {}
-
-          @permissions[perm][refex] ||= []
           @permissions[perm][refex].concat users
         else
           raise InvalidPermissionError, "#{perm} is not in the allowed list of permissions!"
@@ -37,9 +34,7 @@ module Gitolite
       end
 
       def unset_git_config(key)
-        value = @config[key]
         @config.delete(key)
-        value
       end
 
       def to_s
@@ -60,7 +55,7 @@ module Gitolite
         line.gsub!(/^((".*?"|[^#"])*)#.*/) {|m| m=$1}
 
         #fix whitespace
-        line.gsub!(/=/, ' = ')
+        line.gsub!('=', ' = ')
         line.gsub!(/\s+/, ' ')
         line.strip!
       end
@@ -108,12 +103,7 @@ module Gitolite
               group = $1
               users = $2.split
 
-              if @groups.has_key? group
-                @groups[group].concat users
-              else
-                @groups[group] = users
-              end
-
+              @groups[group].concat users
               @groups[group].uniq!
             #gitweb definition
             when /^(\S+)(?: "(.*?)")? = "(.*)"$/
