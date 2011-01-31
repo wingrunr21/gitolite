@@ -44,10 +44,12 @@ module Gitolite
       [@type, @blob, @email].join(' ')
     end
     
-    def to_file(filename)
-      File.open(filename, "w") do |f|
+    def to_file(path)
+      key_file = File.join(path, self.filename)
+      File.open(key_file, "w") do |f|
         f.write (self.to_s)
       end
+      key_file
     end
     
     def filename
