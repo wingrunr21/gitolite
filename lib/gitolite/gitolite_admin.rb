@@ -2,8 +2,8 @@ module Gitolite
   class GitoliteAdmin
     attr_accessor :gl_admin, :ssh_keys, :config
 
-    CONF = "/conf/gitolite.conf"
-    KEYDIR = "/keydir"
+    CONF = "conf/gitolite.conf"
+    KEYDIR = "keydir"
 
     #Intialize with the path to
     #the gitolite-admin repository
@@ -11,31 +11,29 @@ module Gitolite
       @gl_admin = Grit::Repo.new(path)
 
       @path = path
-      @conf = options[:conf] || CONF
-      @keydir = options[:keydir] || KEYDIR
+      @conf = File.join(path, options[:conf] || CONF)
+      @keydir = File.join(path, options[:keydir] || KEYDIR)
 
-      @ssh_keys = load_keys(File.join(@path, @keydir))
-      @config = Config.new(File.join(@path, @conf))
+      @ssh_keys = load_keys(@keydir)
+      @config = Config.new(@conf)
     end
 
     #Writes all aspects out to the file system
     #will also stage all changes
     def save
       #Process config file
+      #TODO
 
       #Process ssh keys
-      files = list_keys(File.join(@path, @keydir)).map{|f| File.basename f}
+      files = list_keys(@keydir).map{|f| File.basename f}
       keys = @ssh_keys.values.map{|f| f.map {|t| t.filename}}.flatten
       
-      #Remove all keys we don't have a record for
       to_remove = (files - keys).map { |f| File.join(@keydir, f)}
-      @gl_admin.remove(to_remove) unless to_remove.empty?
+      @gl_admin.remove(to_remove)
       
-      #Write all keys to files, overwriting existing keys
       keys.each do |key|
-        File.open(key, "w") do |f|
-          f.write key.to_s
-        end
+        new_key = key.to_file(@key_dir)
+        @gl_admin.add(new_key)
       end
     end
 
@@ -70,7 +68,7 @@ module Gitolite
 
           keys[owner] << new_key
         end
-
+        
         keys
       end
       
