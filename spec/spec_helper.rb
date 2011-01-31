@@ -1,0 +1,2 @@
+require 'Forgery'
+require 'tmpdir'
