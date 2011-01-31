@@ -22,7 +22,8 @@ module Gitolite
     #will also stage all changes
     def save
       #Process config file
-      #TODO
+      new_conf = @config.to_file(@conf.dirname)
+      @gl_admin.add(new_conf)
 
       #Process ssh keys
       files = list_keys(@keydir).map{|f| File.basename f}

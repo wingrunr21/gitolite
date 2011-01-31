@@ -1,10 +1,11 @@
 module Gitolite
   class Config
-    attr_accessor :repos, :groups
+    attr_accessor :repos, :groups, :filename
 
     def initialize(config)
       @repos = {}
       @groups = Hash.new { |k,v| k[v] = [] }
+      @filename = File.basename(config)
       process_config(config)
     end
 
@@ -38,13 +39,37 @@ module Gitolite
       end
 
       def to_s
-        @name
+        repo = "repo    #{@name}\n"
+        
+        @permissions.each do |perm, list|
+          list.each do |refex, users|
+            repo += "  " + perm.ljust(6) + refex.ljust(20) + "= " + users.join(' ') + "\n"
+          end
+        end
+        
+        repo
       end
 
       #Gets raised if a permission that isn't in the allowed
       #list is passed in
       class InvalidPermissionError < RuntimeError
       end
+    end
+    
+    def to_file(path)
+      new_conf = File.join(path, @filename)
+      File.open(new_conf, "w") do |f|
+        @groups.each do |k,v|
+          members = v.join(' ')
+          f.write "#{k.ljust(12)}=    #{members}\n"
+        end
+        
+        @repos.each do |k, v|
+          f.write v.to_s
+        end
+      end
+      
+      new_conf
     end
 
     private
