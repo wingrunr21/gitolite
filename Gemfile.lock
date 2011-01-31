@@ -1,13 +1,14 @@
 PATH
   remote: .
   specs:
-    gitolite (0.1.0)
+    gitolite (0.0.1.alpha)
       grit (~> 2.4.1)
 
 GEM
   remote: http://rubygems.org/
   specs:
     diff-lcs (1.1.2)
+    forgery (0.3.6)
     grit (2.4.1)
       diff-lcs (~> 1.1)
       mime-types (~> 1.15)
@@ -26,5 +27,6 @@ PLATFORMS
   x86-mingw32
 
 DEPENDENCIES
+  forgery (~> 0.3.6)
   gitolite!
   rspec (~> 2.4.0)
