@@ -40,13 +40,13 @@ module Gitolite
 
       def to_s
         repo = "repo    #{@name}\n"
-        
+
         @permissions.each do |perm, list|
           list.each do |refex, users|
             repo += "  " + perm.ljust(6) + refex.ljust(20) + "= " + users.join(' ') + "\n"
           end
         end
-        
+
         repo
       end
 
@@ -55,20 +55,26 @@ module Gitolite
       class InvalidPermissionError < RuntimeError
       end
     end
-    
+
+    #TODO: merge repo unless overwrite = true
+    def add_repo(repo, overwrite = false)
+      raise "Repo must be of type Gitolite::Config::Repo!" unless repo.instance_of? Gitolite::Config::Repo
+      @repos[repo.name] = repo
+    end
+
     def to_file(path)
       new_conf = File.join(path, @filename)
       File.open(new_conf, "w") do |f|
         @groups.each do |k,v|
           members = v.join(' ')
-          f.write "#{k.ljust(12)}=    #{members}\n"
+          f.write "#{k.ljust(20)}=  #{members}\n"
         end
-        
+
         @repos.each do |k, v|
           f.write v.to_s
         end
       end
-      
+
       new_conf
     end
 
@@ -141,8 +147,6 @@ module Gitolite
               puts "'#{line}'"
           end
         end
-
-
       end
   end
 end
