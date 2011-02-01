@@ -1,6 +1,10 @@
-= gitolite - Coming soon
+= gitolite - In alpha
 
 This gem is designed to provide a Ruby interface to the {gitolite}[https://github.com/sitaramc/gitolite] git backend system.  I am aiming to provide all management functionality that is available via the gitolite-admin repository (like SSH keys, repository permissions, etc)
+
+== Features
+* Allows for the creation and management of repos within gitolite
+* Allows for the creation and deletion of SSH keys within gitolite
 
 == Requirements
 * Ruby 1.9.2 or higher
@@ -9,14 +13,65 @@ This gem is designed to provide a Ruby interface to the {gitolite}[https://githu
 
 == Installation
 
-  gem install gitolite
+  gem install gitolite --pre
 
 == Usage
 
+=== Load a gitolite-admin repo
+
+  require 'gitolite'
+  ga_repo = Gitolite::GitoliteAdmin.new("/path/to/gitolite/admin/repo")
+  
+For now, this method can only be called on an existing gitolite-admin repo.  Support for bootstrapping a gitolite-repo will be added in the future (but will never be recommended).
+  
+=== Repo management
+
+  repo = Config::Repo.new("AwesomeRepo")
+  
+  #For a list of permissions, see https://github.com/sitaramc/gitolite/blob/pu/doc/gitolite.conf.mkd
+  repo.add_permission("RW+", "", "bob", "joe", "susan")
+  
+  #Add repo
+  ga_repo.add_repo(repo)
+  
+  #Delete repo
+  ga_repo.rm_repo(repo)
+
+=== SSH Key Management
+
+  #Two ways to create keys, manually or from an existing key
+  key = Gitolite::SSHKey.new("ssh-rsa", "big-public-key-blob", "email")
+  key2 = Gitolite::SSHKey.from_file("/path/to/ssh/key.pub")
+  
+  #Add the keys
+  ga_repo.add_key(key)
+  ga_repo.add_key(key2)
+
+  #Remove key2
+  ga_repo.rm_key(key2)
+
+=== Save changes
+
+  ga_repo.save
+  
+When this method is called, all changes get written to the file system and staged in git.  For the time being, gitolite assumes full control of the gitolite-admin repository.  This means that any keys in the keydir that are not being track will be removed and any human changes to gitolite.conf will be erased.
+
+=== Apply changes
+  ga_repo.apply
+
+This method will commit all changes with a generic message (will be improved upon later) and push to origin master.
+  
+=== Save and apply
+  ga_repo.save_and_apply
+
 == Caveats
 === 1.8.x compatibility
-This gem should work properly on Ruby 1.8.x with the exception of deny rules.  In order to fully support Ruby < 1.9.x, an ordered Hash is required, such as the one implemented by ActiveSupport.  Support will be added if there appears to be a demand for it.
+This gem should work properly on Ruby 1.8.x with the exception of deny rules.  In order to fully support Ruby < 1.9.x, an ordered Hash is required. The one implemented by ActiveSupport could probably be used.  Support will be added if there appears to be a demand for it.
 
 == Documentation
 
 == Future
+* support folders in the keydir
+* support includes tags
+* support bootstrapping a gitolite-admin repo
+* cleanup methods to make adding and removing easier (like add_key should accept an array of keys)
