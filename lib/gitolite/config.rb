@@ -22,7 +22,7 @@ module Gitolite
         @config = {}
       end
 
-      def add_permission(perm, refex, users)
+      def add_permission(perm, refex, *users)
         if ALLOWED_PERMISSIONS.include? perm
           @permissions[perm][refex].concat users
         else
@@ -60,6 +60,11 @@ module Gitolite
     def add_repo(repo, overwrite = false)
       raise "Repo must be of type Gitolite::Config::Repo!" unless repo.instance_of? Gitolite::Config::Repo
       @repos[repo.name] = repo
+    end
+    
+    def rm_repo(repo)
+      raise "Repo must be of type Gitolite::Config::Repo!" unless repo.instance_of? Gitolite::Config::Repo
+      @repos.delete repo.name
     end
 
     def to_file(path)
