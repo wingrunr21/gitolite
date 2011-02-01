@@ -15,7 +15,7 @@ module Gitolite
       @type = type
       @blob = blob
       @email = email
-      
+
       @owner = owner || email
       @location = location
     end
@@ -36,14 +36,14 @@ module Gitolite
       if email.nil?
         email = owner
       end
-      
+
       self.new(type, blob, email, owner, location)
     end
 
     def to_s
       [@type, @blob, @email].join(' ')
     end
-    
+
     def to_file(path)
       key_file = File.join(path, self.filename)
       File.open(key_file, "w") do |f|
@@ -51,13 +51,13 @@ module Gitolite
       end
       key_file
     end
-    
+
     def filename
       file = @owner
       file += "@#{@location}" unless @location.empty?
       file += ".pub"
     end
-    
+
     def ==(key)
       @type == key.type &&
       @blob == key.blob &&
@@ -67,4 +67,3 @@ module Gitolite
     end
   end
 end
-

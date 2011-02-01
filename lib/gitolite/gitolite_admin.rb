@@ -45,11 +45,15 @@ module Gitolite
     #commits all staged changes and pushes back
     #to origin
     def apply
-      status = @gl_admin.status
+      #TODO: generate a better commit message
+      @gl_admin.commit_index("Commit by gitolite gem")
+      @gl_admin.git.push({}, "origin", "master")
     end
 
     #Calls save and apply in order
     def save_and_apply
+      self.save
+      self.apply
     end
 
     def add_key(key)
