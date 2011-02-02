@@ -22,9 +22,10 @@ module Gitolite
         @config = {}
       end
 
-      def add_permission(perm, refex, *users)
+      def add_permission(perm, refex = "", *users)
         if ALLOWED_PERMISSIONS.include? perm
-          @permissions[perm][refex].concat users
+          @permissions[perm][refex].concat users.flatten
+          @permissions[perm][refex].uniq!
         else
           raise InvalidPermissionError, "#{perm} is not in the allowed list of permissions!"
         end
@@ -61,7 +62,7 @@ module Gitolite
       raise "Repo must be of type Gitolite::Config::Repo!" unless repo.instance_of? Gitolite::Config::Repo
       @repos[repo.name] = repo
     end
-    
+
     def rm_repo(repo)
       raise "Repo must be of type Gitolite::Config::Repo!" unless repo.instance_of? Gitolite::Config::Repo
       @repos.delete repo.name
