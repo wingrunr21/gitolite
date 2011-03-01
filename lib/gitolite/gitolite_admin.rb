@@ -22,22 +22,22 @@ module Gitolite
     #Writes all aspects out to the file system
     #will also stage all changes
     def save
-      Dir.chdir(@gl_admin.working_dir)
+      in_working_dir do
+        #Process config file
+        new_conf = @config.to_file(@confdir)
+        @gl_admin.add(new_conf)
 
-      #Process config file
-      new_conf = @config.to_file(@confdir)
-      @gl_admin.add(new_conf)
+        #Process ssh keys
+        files = list_keys(@keydir).map{|f| File.basename f}
+        keys = @ssh_keys.values.map{|f| f.map {|t| t.filename}}.flatten
 
-      #Process ssh keys
-      files = list_keys(@keydir).map{|f| File.basename f}
-      keys = @ssh_keys.values.map{|f| f.map {|t| t.filename}}.flatten
+        to_remove = (files - keys).map { |f| File.join(@keydir, f)}
+        @gl_admin.remove(to_remove)
 
-      to_remove = (files - keys).map { |f| File.join(@keydir, f)}
-      @gl_admin.remove(to_remove)
-
-      @ssh_keys.each_value do |key|
-        key.each do |k|
-          @gl_admin.add(k.to_file(@keydir))
+        @ssh_keys.each_value do |key|
+          key.each do |k|
+            @gl_admin.add(k.to_file(@keydir))
+          end
         end
       end
     end
@@ -82,11 +82,32 @@ module Gitolite
       end
 
       def list_keys(path)
-        old_path = Dir.pwd
-        Dir.chdir(path)
-        keys = Dir.glob("**/*.pub")
-        Dir.chdir(old_path)
-        keys
+        in_working_dir path do
+          keys = Dir.glob("**/*.pub")
+          keys
+        end
+      end
+
+      # Executes the given block in the supplied directory or the
+      # gitolite-admin working directory, returning to the previous working
+      # directory afterwards.
+      def in_working_dir(wd = nil, &block)
+        # FIXME:  This is a somewhat temporary solution; for example, in a
+        # multi-threaded application, some threads might unexpectedly find
+        # themselves in a different working directory than expected.  It would
+        # probably be better to implement a couple of helper methods to
+        # translate subdirectories to full paths and pass --work-tree= to git
+        # commands.
+
+        wd ||= @gl_admin.working_dir
+        oldwd = Dir.pwd
+
+        begin
+          Dir.chdir wd
+          block[]
+        ensure
+          Dir.chdir oldwd
+        end
       end
   end
 end
