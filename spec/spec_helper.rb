@@ -1,2 +1,2 @@
-require 'Forgery'
+require 'forgery'
 require 'tmpdir'
