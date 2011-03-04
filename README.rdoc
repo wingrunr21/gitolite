@@ -80,3 +80,5 @@ This gem should work properly on Ruby 1.8.x with the exception of deny rules.  I
 * support bootstrapping a gitolite-admin repo
 * cleanup methods to make adding and removing easier (like add_key should accept an array of keys)
 * Rails integration
+* Convert methods to use full paths instead of Directory operations for thread safety
+* Add full support for Wildcard repos
