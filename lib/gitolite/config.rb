@@ -10,8 +10,11 @@ module Gitolite
     end
 
     def self.init(filename = "gitolite.conf")
-      file = Tempfile(filename)
+      file = Tempfile.new(filename)
       conf = self.new(file)
+      conf.filename = filename #kill suffix added by Tempfile
+      file.close(unlink_now = true)
+      conf
     end
 
     #Represents a repo inside the gitolite configuration.  The name, permissions, and git config
