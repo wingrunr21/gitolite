@@ -6,8 +6,8 @@ module Gitolite
     CONFDIR = "conf"
     KEYDIR = "keydir"
 
-    #Intialize with the path to
-    #the gitolite-admin repository
+    # Intialize with the path to
+    # the gitolite-admin repository
     def initialize(path, options = {})
       @gl_admin = Grit::Repo.new(path)
 
@@ -19,10 +19,40 @@ module Gitolite
       @config = Config.new(File.join(path, @confdir, @conf))
     end
 
+    # This method will bootstrap a gitolite-admin repo
+    # at the given path.  A typical gitolite-admin
+    # repo will have the following tree:
+    #
+    # gitolite-admin
+    #   conf
+    #     gitolite.conf
+    #   keydir
+    def self.bootstrap(path, options = {})
+      FileUtils.mkdir_p([File.join(path,"conf"), File.join(path,"keydir")])
+
+      options[:perm] ||= "RW+"
+      options[:refex] ||= ""
+      options[:user] ||= "git"
+
+      c = Config.init
+      r = Config::Repo.new(options[:repo] || "gitolite-admin")
+      r.add_permission(options[:perm], options[:refex], options[:user])
+      c.add_repo(r)
+      config = c.to_file(File.join(path, "conf"))
+
+      repo = Grit::Repo.init(path)
+      Dir.chdir(path) do
+        repo.add(config)
+        repo.commit_index("Config bootstrapped by the gitolite gem")
+      end
+
+      self.new(path)
+    end
+
     #Writes all aspects out to the file system
     #will also stage all changes
     def save
-      in_working_dir do
+      Dir.chdir(@gl_admin.working_dir) do
         #Process config file
         new_conf = @config.to_file(@confdir)
         @gl_admin.add(new_conf)
@@ -82,31 +112,9 @@ module Gitolite
       end
 
       def list_keys(path)
-        in_working_dir path do
+        Dir.chdir(path) do
           keys = Dir.glob("**/*.pub")
           keys
-        end
-      end
-
-      # Executes the given block in the supplied directory or the
-      # gitolite-admin working directory, returning to the previous working
-      # directory afterwards.
-      def in_working_dir(wd = nil, &block)
-        # FIXME:  This is a somewhat temporary solution; for example, in a
-        # multi-threaded application, some threads might unexpectedly find
-        # themselves in a different working directory than expected.  It would
-        # probably be better to implement a couple of helper methods to
-        # translate subdirectories to full paths and pass --work-tree= to git
-        # commands.
-
-        wd ||= @gl_admin.working_dir
-        oldwd = Dir.pwd
-
-        begin
-          Dir.chdir wd
-          block[]
-        ensure
-          Dir.chdir oldwd
         end
       end
   end
