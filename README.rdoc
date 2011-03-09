@@ -7,6 +7,11 @@ This gem is still under very active development.  There are a number of issues w
 == Features
 * Allows for the creation and management of repos within gitolite
 * Allows for the creation and deletion of SSH keys within gitolite
+* Allows for the bootstrapping of a gitolite-admin repository
+
+== Issues
+* Gem is not thread safe.  For now, the gem will change directories in order to perform git operations.  It will, however, return to the old working directory once it is finished.  I am looking into making the gem thread safe.
+* Deny rules do not maintain order.  This is being worked on.
 
 == Requirements
 * Ruby 1.9.2 or higher
@@ -24,7 +29,7 @@ This gem is still under very active development.  There are a number of issues w
   require 'gitolite'
   ga_repo = Gitolite::GitoliteAdmin.new("/path/to/gitolite/admin/repo")
 
-For now, this method can only be called on an existing gitolite-admin repo.  Support for bootstrapping a gitolite-repo will be added in the future (but will never be recommended).
+This method can only be called on an existing gitolite-admin repo.  If you need to create a new gitolite-admin repo, see "Bootstrapping".
 
 === Repo management
 
@@ -66,6 +71,19 @@ This method will commit all changes with a generic message (will be improved upo
 === Save and apply
   ga_repo.save_and_apply
 
+=== Bootstrapping
+  ga_repo = GitoliteAdmin.bootstrap("/path/to/new/gitolite/repo")
+
+This will create the folders <tt>conf</tt> and <tt>keydir</tt> in the supplied path.  A config file will also be created in the conf directory.  The default configuration supplies RW+ permissions to a user named git for a repo named <tt>gitolite-admin</tt>.  You can specify an options hash to change some values:
+
+  ga_repo = GitoliteAdmin.bootstrap("/path/to/new/gitolite/repo", {:user => "admin", :perm => "RW"})
+
+You can also pass a message to be used for the initial bootstrap commit:
+
+  ga_repo = GitoliteAdmin.bootstrap("/path/to/new/gitolite/repo", {:message => "Bootstrapped new repo"})
+
+Please note that while bootstrapping is supported, I highly recommend that the initial gitolite-admin repo be created by gitolite itself.
+
 == Caveats
 === 1.8.x compatibility
 This gem should work properly on Ruby 1.8.x with the exception of deny rules.  In order to fully support Ruby < 1.9.x, an ordered Hash is required. The one implemented by ActiveSupport could probably be used.  Support will be added if there appears to be a demand for it.
@@ -77,8 +95,7 @@ This gem should work properly on Ruby 1.8.x with the exception of deny rules.  I
 * support folders in the keydir
 * support include tags
 * properly support deny rules
-* support bootstrapping a gitolite-admin repo
 * cleanup methods to make adding and removing easier (like add_key should accept an array of keys)
 * Rails integration
-* Convert methods to use full paths instead of Directory operations for thread safety
+* Make the gem thread safe
 * Add full support for Wildcard repos
