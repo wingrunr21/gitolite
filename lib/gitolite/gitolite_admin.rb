@@ -27,6 +27,8 @@ module Gitolite
     #   conf
     #     gitolite.conf
     #   keydir
+    #
+    # TODO: Make this method detect an existing gitolite-admin repo
     def self.bootstrap(path, options = {})
       FileUtils.mkdir_p([File.join(path,"conf"), File.join(path,"keydir")])
 
@@ -43,7 +45,7 @@ module Gitolite
       repo = Grit::Repo.init(path)
       Dir.chdir(path) do
         repo.add(config)
-        repo.commit_index("Config bootstrapped by the gitolite gem")
+        repo.commit_index(options[:message] || "Config bootstrapped by the gitolite gem")
       end
 
       self.new(path)
@@ -74,13 +76,15 @@ module Gitolite
 
     #commits all staged changes and pushes back
     #to origin
+    #
+    #TODO: generate a better commit message
+    #TODO: add the ability to specify the message, remote, and branch
+    #TODO: detect existance of origin instead of just dying
     def apply
-      #TODO: generate a better commit message
       @gl_admin.commit_index("Commit by gitolite gem")
       @gl_admin.git.push({}, "origin", "master")
     end
 
-    #Calls save and apply in order
     def save_and_apply
       self.save
       self.apply
