@@ -9,6 +9,11 @@ module Gitolite
       process_config(config)
     end
 
+    def self.init(filename = "gitolite.conf")
+      file = Tempfile(filename)
+      conf = self.new(file)
+    end
+
     #Represents a repo inside the gitolite configuration.  The name, permissions, and git config
     #options are all encapsulated in this class
     class Repo
@@ -94,7 +99,7 @@ module Gitolite
         #fix whitespace
         line.gsub!('=', ' = ')
         line.gsub!(/\s+/, ' ')
-        line.strip!
+        line.strip
       end
 
       def process_config(config)
