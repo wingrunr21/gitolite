@@ -34,10 +34,10 @@ For now, this method can only be called on an existing gitolite-admin repo.  Sup
   repo.add_permission("RW+", "", "bob", "joe", "susan")
   
   #Add repo
-  ga_repo.add_repo(repo)
+  ga_repo.config.add_repo(repo)
   
   #Delete repo
-  ga_repo.rm_repo(repo)
+  ga_repo.config.rm_repo(repo)
 
 === SSH Key Management
 
