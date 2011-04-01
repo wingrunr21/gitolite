@@ -92,7 +92,7 @@ This gem should work properly on Ruby 1.8.x with the exception of deny rules.  I
 The grit gem (which is used for under-the-hood git operations) does not currently support Windows.  Until it does, gitolite will be unable to support Windows.
 
 == Contributing
-Because the gem is still pre-release, I'd prefer not to take pull requests at this time.  If you find an issue or would like to request a feature, please file an issue instead.'
+Because the gem is still pre-release, I'd prefer not to take pull requests at this time.  If you find an issue or would like to request a feature, please file an issue instead.
 
 == Documentation
 * Rdoc is coming soon
@@ -100,6 +100,7 @@ Because the gem is still pre-release, I'd prefer not to take pull requests at th
 == Future
 * support folders in the keydir
 * support include tags
+* support pull operations to sync the local gitolite-admin repository with the server
 * properly support deny rules
 * cleanup methods to make adding and removing easier (like add_key should accept an array of keys)
 * Rails integration
