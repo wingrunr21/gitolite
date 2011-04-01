@@ -88,6 +88,12 @@ Please note that while bootstrapping is supported, I highly recommend that the i
 === 1.8.x compatibility
 This gem should work properly on Ruby 1.8.x with the exception of deny rules.  In order to fully support Ruby < 1.9.x, an ordered Hash is required. The one implemented by ActiveSupport could probably be used.  Support will be added if there appears to be a demand for it.
 
+=== Windows compatibility
+The grit gem (which is used for under-the-hood git operations) does not currently support Windows.  Until it does, gitolite will be unable to support Windows.
+
+== Contributing
+Because the gem is still pre-release, I'd prefer not to take pull requests at this time.  If you find an issue or would like to request a feature, please file an issue instead.'
+
 == Documentation
 * Rdoc is coming soon
 
