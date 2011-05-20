@@ -24,7 +24,7 @@ module Gitolite
     class Repo
       ALLOWED_PERMISSIONS = ['C', 'R', 'RW', 'RW+', 'RWC', 'RW+C', 'RWD', 'RW+D', 'RWCD', 'RW+CD', '-']
 
-      attr_accessor :permissions, :name, :config
+      attr_accessor :permissions, :name, :config, :owner, :description
 
       def initialize(name)
         @name = name
@@ -65,6 +65,12 @@ module Gitolite
           end
         end
 
+        unless @description.nil?
+          repo += "\n#{@name} "
+          repo += "\"#{@owner}\" " unless @owner.nil?
+          repo += "= \"#{@description}\""
+        end
+
         repo
       end
 
@@ -83,6 +89,14 @@ module Gitolite
     def rm_repo(repo)
       raise ArgumentError, "Repo must be of type Gitolite::Config::Repo!" unless repo.instance_of? Gitolite::Config::Repo
       @repos.delete repo.name
+    end
+
+    def has_repo?(repo)
+      repo.instance_of?(Gitolite::Config::Repo) ? @repos.has_key?(repo.name) : @repos.has_key?(repo)
+    end
+
+    def get_repo(repo)
+      @repos[repo]
     end
 
     def to_file(path)
@@ -133,7 +147,7 @@ module Gitolite
               repos.each do |r|
                 context << r
 
-                @repos[r] = Repo.new(r) unless @repos.has_key? r
+                @repos[r] = Repo.new(r) unless has_repo? r
               end
             #repo permissions
             when /^(-|C|R|RW\+?(?:C?D?|D?C?)) (.* )?= (.+)/
@@ -161,16 +175,36 @@ module Gitolite
               @groups[group].uniq!
             #gitweb definition
             when /^(\S+)(?: "(.*?)")? = "(.*)"$/
-              #TODO: implement gitweb definitions
-              #ignore gitweb right now
+              repo = $1
+              owner = $2
+              description = $3
+
+              #Check for missing description
+              raise ParseError, "Missing Gitweb description for repo: #{repo}" if description.nil?
+
+              #Check for groups
+              raise ParseError, "Gitweb descriptions cannot be set for groups" if repo =~ /@.+/
+
+              if has_repo? repo
+                r = @repos[repo]
+              else
+                r = Repo.new(repo)
+                add_repo(r)
+              end
+
+              r.owner = owner
+              r.description = description
             when /^include "(.+)"/
               #TODO: implement includes
               #ignore includes for now
             else
-              puts "The following line cannot be processed:"
-              puts "'#{line}'"
+              raise ParseError, "'#{line}' cannot be processed"
           end
         end
+      end
+
+      #Raised when something in a config fails to parse properly
+      class ParseError < RuntimeError
       end
   end
 end
