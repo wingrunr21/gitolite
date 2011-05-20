@@ -1,3 +1,5 @@
+require 'tempfile'
+
 module Gitolite
   class Config
     attr_accessor :repos, :groups, :filename
@@ -26,14 +28,19 @@ module Gitolite
 
       def initialize(name)
         @name = name
-        @permissions = Hash.new {|k,v| k[v] = Hash.new{|k2, v2| k2[v2] = [] }}
+        @permissions = Array.new.push(Hash.new {|k,v| k[v] = Hash.new{|k2, v2| k2[v2] = [] }})
         @config = {}
       end
 
       def add_permission(perm, refex = "", *users)
         if ALLOWED_PERMISSIONS.include? perm
-          @permissions[perm][refex].concat users.flatten
-          @permissions[perm][refex].uniq!
+          #Handle deny rules
+          if perm == '-'
+            @permissions.push(Hash.new {|k,v| k[v] = Hash.new{|k2, v2| k2[v2] = [] }})
+          end
+
+          @permissions.last[perm][refex].concat users.flatten
+          @permissions.last[perm][refex].uniq!
         else
           raise InvalidPermissionError, "#{perm} is not in the allowed list of permissions!"
         end
@@ -50,9 +57,11 @@ module Gitolite
       def to_s
         repo = "repo    #{@name}\n"
 
-        @permissions.each do |perm, list|
-          list.each do |refex, users|
-            repo += "  " + perm.ljust(6) + refex.ljust(20) + "= " + users.join(' ') + "\n"
+        @permissions.each do |perm_hash|
+          perm_hash.each do |perm, list|
+            list.each do |refex, users|
+              repo += "  " + perm.ljust(6) + refex.ljust(25) + "= " + users.join(' ') + "\n"
+            end
           end
         end
 
@@ -61,18 +70,18 @@ module Gitolite
 
       #Gets raised if a permission that isn't in the allowed
       #list is passed in
-      class InvalidPermissionError < RuntimeError
+      class InvalidPermissionError < ArgumentError
       end
     end
 
     #TODO: merge repo unless overwrite = true
     def add_repo(repo, overwrite = false)
-      raise "Repo must be of type Gitolite::Config::Repo!" unless repo.instance_of? Gitolite::Config::Repo
+      raise ArgumentError, "Repo must be of type Gitolite::Config::Repo!" unless repo.instance_of? Gitolite::Config::Repo
       @repos[repo.name] = repo
     end
 
     def rm_repo(repo)
-      raise "Repo must be of type Gitolite::Config::Repo!" unless repo.instance_of? Gitolite::Config::Repo
+      raise ArgumentError, "Repo must be of type Gitolite::Config::Repo!" unless repo.instance_of? Gitolite::Config::Repo
       @repos.delete repo.name
     end
 
@@ -152,9 +161,10 @@ module Gitolite
               @groups[group].uniq!
             #gitweb definition
             when /^(\S+)(?: "(.*?)")? = "(.*)"$/
+              #TODO: implement gitweb definitions
               #ignore gitweb right now
-              puts line
             when /^include "(.+)"/
+              #TODO: implement includes
               #ignore includes for now
             else
               puts "The following line cannot be processed:"
