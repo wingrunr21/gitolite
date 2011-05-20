@@ -11,7 +11,6 @@ This gem is still under very active development.  There are a number of issues w
 
 == Issues
 * Gem is not thread safe.  For now, the gem will change directories in order to perform git operations.  It will, however, return to the old working directory once it is finished.  I am looking into making the gem thread safe.
-* Deny rules do not maintain order.  This is being worked on.
 
 == Requirements
 * Ruby 1.9.2 or higher
@@ -40,9 +39,19 @@ This method can only be called on an existing gitolite-admin repo.  If you need 
 
   #Add repo
   ga_repo.config.add_repo(repo)
-  
+
   #Delete repo
   ga_repo.config.rm_repo(repo)
+
+  #Test if repo exists
+  ga_repo.config.has_repo?('cool_repo')
+
+  #Can also pass a Gitolite::Config::Repo object
+  repo = Gitolite::Config::Repo.new('cool_repo')
+  ga_repo.config.has_repo?(repo)
+
+  #Get a repo object from the config
+  repo = ga_repo.config.get_repo('cool_repo')
 
 === SSH Key Management
 
@@ -101,7 +110,6 @@ Because the gem is still pre-release, I'd prefer not to take pull requests at th
 * support folders in the keydir
 * support include tags
 * support pull operations to sync the local gitolite-admin repository with the server
-* properly support deny rules
 * cleanup methods to make adding and removing easier (like add_key should accept an array of keys)
 * Rails integration
 * Make the gem thread safe
