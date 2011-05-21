@@ -32,7 +32,7 @@ This method can only be called on an existing gitolite-admin repo.  If you need 
 
 === Repo management
 
-  repo = Config::Repo.new("AwesomeRepo")
+  repo = Gitolite::Config::Repo.new("AwesomeRepo")
 
   #For a list of permissions, see https://github.com/sitaramc/gitolite/blob/pu/doc/gitolite.conf.mkd
   repo.add_permission("RW+", "", "bob", "joe", "susan")
@@ -114,3 +114,4 @@ Because the gem is still pre-release, I'd prefer not to take pull requests at th
 * Rails integration
 * Make the gem thread safe
 * Add full support for Wildcard repos
+* support git config options
