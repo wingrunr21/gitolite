@@ -1,33 +1,33 @@
 PATH
   remote: .
   specs:
-    gitolite (0.0.2.alpha)
+    gitolite (0.0.3.alpha)
       grit (~> 2.4.1)
 
 GEM
   remote: http://rubygems.org/
   specs:
     diff-lcs (1.1.2)
-    forgery (0.3.7)
+    forgery (0.3.8)
       nokogiri (~> 1.4)
     grit (2.4.1)
       diff-lcs (~> 1.1)
       mime-types (~> 1.15)
     mime-types (1.16)
     nokogiri (1.4.4)
-    rspec (2.5.0)
-      rspec-core (~> 2.5.0)
-      rspec-expectations (~> 2.5.0)
-      rspec-mocks (~> 2.5.0)
-    rspec-core (2.5.1)
-    rspec-expectations (2.5.0)
+    rspec (2.6.0)
+      rspec-core (~> 2.6.0)
+      rspec-expectations (~> 2.6.0)
+      rspec-mocks (~> 2.6.0)
+    rspec-core (2.6.0)
+    rspec-expectations (2.6.0)
       diff-lcs (~> 1.1.2)
-    rspec-mocks (2.5.0)
+    rspec-mocks (2.6.0)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
-  forgery (~> 0.3.7)
+  forgery (~> 0.3.8)
   gitolite!
-  rspec (~> 2.5.0)
+  rspec (~> 2.6.0)

@@ -14,8 +14,8 @@ Gem::Specification.new do |s|
 
   s.rubyforge_project = "gitolite"
 
-  s.add_development_dependency "rspec", "~> 2.5.0"
-  s.add_development_dependency "forgery", "~> 0.3.7"
+  s.add_development_dependency "rspec", "~> 2.6.0"
+  s.add_development_dependency "forgery", "~> 0.3.8"
   s.add_dependency "grit", "~> 2.4.1"
 
   s.files         = `git ls-files`.split("\n")
