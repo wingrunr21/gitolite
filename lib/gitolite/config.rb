@@ -65,13 +65,21 @@ module Gitolite
           end
         end
 
-        unless @description.nil?
-          repo += "\n#{@name} "
-          repo += "\"#{@owner}\" " unless @owner.nil?
-          repo += "= \"#{@description}\""
+        @config.each do |k, v|
+          repo += "  config " + k + " = " + v + "\n"
         end
 
         repo
+      end
+
+      def gitweb_description
+        if @description.nil?
+          nil
+        else
+          desc = "#{@name} "
+          desc += "\"#{@owner}\" " unless @owner.nil?
+          desc += "= \"#{@description}\""
+        end
       end
 
       #Gets raised if a permission that isn't in the allowed
@@ -92,24 +100,36 @@ module Gitolite
     end
 
     def has_repo?(repo)
-      repo.instance_of?(Gitolite::Config::Repo) ? @repos.has_key?(repo.name) : @repos.has_key?(repo)
+      if repo.instance_of?(Gitolite::Config::Repo)
+        @repos.has_key?(repo.name)
+      else
+        repo.is_a?(Symbol) ? @repos.has_key?(repo.to_s) : @repos.has_key?(repo)
+      end
     end
 
     def get_repo(repo)
-      @repos[repo]
+      repo.is_a?(Symbol) ? @repos[repo.to_s] : @repos[repo]
     end
 
-    def to_file(path)
-      new_conf = File.join(path, @filename)
+    def to_file(path=".", filename=@filename)
+      raise ArgumentError, "Path contains a filename or does not exist" unless File.directory?(path)
+
+      new_conf = File.join(path, filename)
       File.open(new_conf, "w") do |f|
         @groups.each do |k,v|
           members = v.join(' ')
           f.write "#{k.ljust(20)}=  #{members}\n"
         end
 
+        gitweb_descs = []
         @repos.each do |k, v|
           f.write v.to_s
+
+          gwd = v.gitweb_description
+          gitweb_descs.push(gwd) unless gwd.nil?
         end
+
+        f.write gitweb_descs.join("\n")
       end
 
       new_conf
