@@ -30,6 +30,27 @@ This gem is still under very active development.  There are a number of issues w
 
 This method can only be called on an existing gitolite-admin repo.  If you need to create a new gitolite-admin repo, see "Bootstrapping".
 
+=== Configuration Files
+
+  conf = ga_repo.config
+
+  #Empty configs can also be initialized
+  conf2 = Config.init # => defaults to a filename of gitolite.conf
+  conf2 = Config.init("new_config.conf")
+
+  #Filename is set to whatever the filename was when the config was created
+  conf.filename # => "gitolite.conf"
+  conf2.filename # => "new_config.conf")
+
+  #filename can be changed via the setter
+  conf2.filename = "new_config.conf"
+
+  #to_file will write the config out to the file system
+  #using the value of the filename attribute.  An alternative
+  #filename can also be specified
+  conf.to_file("/new/config/path") # => writes /new/config/path/gitolite.conf
+  conf.to_file("/new/config/path", "test.conf") # => writes /new/config/path/test.conf
+
 === Repo management
 
   repo = Gitolite::Config::Repo.new("AwesomeRepo")
@@ -37,21 +58,27 @@ This method can only be called on an existing gitolite-admin repo.  If you need 
   #For a list of permissions, see https://github.com/sitaramc/gitolite/blob/pu/doc/gitolite.conf.mkd
   repo.add_permission("RW+", "", "bob", "joe", "susan")
 
-  #Add repo
-  ga_repo.config.add_repo(repo)
+  #Add repo to config
+  conf.add_repo(repo)
 
-  #Delete repo
-  ga_repo.config.rm_repo(repo)
+  #Delete repo by object
+  conf.rm_repo(repo)
 
-  #Test if repo exists
-  ga_repo.config.has_repo?('cool_repo')
+  #Delete a repo by name
+  conf.rm_repo("AwesomeRepo")
+  conf.rm_repo(:AwesomeRepo)
+
+  #Test if repo exists by name
+  conf.has_repo?('cool_repo') # => false
+  conf.has_repo?(:cool_repo) # => false
 
   #Can also pass a Gitolite::Config::Repo object
   repo = Gitolite::Config::Repo.new('cool_repo')
-  ga_repo.config.has_repo?(repo)
+  conf.has_repo?(repo) # => true
 
   #Get a repo object from the config
-  repo = ga_repo.config.get_repo('cool_repo')
+  repo = conf.get_repo('cool_repo')
+  repo = conf.get_repo(:cool_repo)
 
 === SSH Key Management
 
@@ -114,4 +141,3 @@ Because the gem is still pre-release, I'd prefer not to take pull requests at th
 * Rails integration
 * Make the gem thread safe
 * Add full support for Wildcard repos
-* support git config options

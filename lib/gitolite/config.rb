@@ -95,8 +95,11 @@ module Gitolite
     end
 
     def rm_repo(repo)
-      raise ArgumentError, "Repo must be of type Gitolite::Config::Repo!" unless repo.instance_of? Gitolite::Config::Repo
-      @repos.delete repo.name
+      if repo.instance_of?(Gitolite::Config::Repo)
+        @repos.delete(repo.name)
+      else
+        repo.is_a?(Symbol) ? @repos.delete(repo.to_s) : @repos.delete(repo)
+      end
     end
 
     def has_repo?(repo)
