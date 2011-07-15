@@ -11,6 +11,20 @@ describe Gitolite::Config::Repo do
     end
   end
 
+  describe "deny rules" do
+    it 'should maintain the order of rules for a repository' do
+      @repo.add_permission("RW+", "", "bob", "joe", "sam")
+      @repo.add_permission("R", "", "sue", "jen", "greg")
+      @repo.add_permission("-", "refs/tags/test[0-9]", "@students", "jessica")
+      @repo.add_permission("RW", "refs/tags/test[0-9]", "@teachers", "bill", "todd")
+      @repo.add_permission("R", "refs/tags/test[0-9]", "@profs")
+
+      @repo.permissions.length.should == 2
+      @repo.permissions[0].size.should == 2
+      @repo.permissions[1].size.should == 3
+    end
+  end
+
   describe '#add_permission' do
     it 'should allow adding a permission to the permissions list' do
       @repo.add_permission("RW+")

@@ -71,32 +71,142 @@ describe Gitolite::Config do
   describe "#init" do
     it 'should create a valid, blank Gitolite::Config' do
       c = Gitolite::Config.init
+
+      c.should be_an_instance_of Gitolite::Config
       c.repos.should_not be nil
       c.repos.length.should be 0
       c.groups.should_not be nil
       c.groups.length.should be 0
+      c.filename.should == "gitolite.conf"
+    end
+
+    it 'should create a valid, blank Gitolite::Config with the given filename' do
+      filename = "test.conf"
+      c = Gitolite::Config.init(filename)
+
+      c.should be_an_instance_of Gitolite::Config
+      c.repos.should_not be nil
+      c.repos.length.should be 0
+      c.groups.should_not be nil
+      c.groups.length.should be 0
+      c.filename.should == filename
     end
   end
 
   describe "repo management" do
+    before :each do
+      @config = Gitolite::Config.new(File.join(conf_dir, 'complicated.conf'))
+    end
+
     describe "#get_repo" do
+      it 'should fetch a repo by a string containing the name' do
+        @config.get_repo('gitolite').should be_an_instance_of Gitolite::Config::Repo
+      end
+
+      it 'should fetch a repo via a symbol representing the name' do
+        @config.get_repo(:gitolite).should be_an_instance_of Gitolite::Config::Repo
+      end
+
+      it 'should return nil for a repo that does not exist' do
+        @config.get_repo(:glite).should be nil
+      end
     end
 
     describe "#has_repo?" do
+      it 'should return false for a repo that does not exist' do
+        @config.has_repo?(:glite).should be false
+      end
+
+      it 'should check for the existance of a repo given a repo object' do
+        r = @config.repos["gitolite"]
+        @config.has_repo?(r).should be true
+      end
+
+      it 'should check for the existance of a repo given a string containing the name' do
+        @config.has_repo?('gitolite').should be true
+      end
+
+      it 'should check for the existance of a repo given a symbol representing the name' do
+        @config.has_repo?(:gitolite).should be true
+      end
     end
 
     describe "#add_repo" do
+      it 'should throw an ArgumentError for non-Gitolite::Config::Repo objects passed in' do
+        lambda{ @config.add_repo("not-a-repo") }.should raise_error(ArgumentError)
+      end
+
+      it 'should add a given repo to the list of repos' do
+        r = Gitolite::Config::Repo.new('cool_repo')
+        nrepos = @config.repos.size
+        @config.add_repo(r)
+
+        @config.repos.size.should == nrepos + 1
+        @config.has_repo?(:cool_repo).should be true
+      end
+
+      it 'should merge a given repo with an existing repo' do
+      end
+
+      it 'should overwrite an existing repo when overwrite = true' do
+      end
     end
 
     describe "#rm_repo" do
+      it 'should remove a repo for the Gitolite::Config::Repo object given' do
+        r = @config.get_repo(:gitolite)
+        r2 = @config.rm_repo(r)
+        r2.name.should == r.name
+        r2.permissions.length.should == r.permissions.length
+        r2.owner.should == r.owner
+        r2.description.should == r.description
+      end
+
+      it 'should remove a repo given a string containing the name' do
+        r = @config.get_repo(:gitolite)
+        r2 = @config.rm_repo('gitolite')
+        r2.name.should == r.name
+        r2.permissions.length.should == r.permissions.length
+        r2.owner.should == r.owner
+        r2.description.should == r.description
+      end
+
+      it 'should remove a repo given a symbol representing the name' do
+        r = @config.get_repo(:gitolite)
+        r2 = @config.rm_repo(:gitolite)
+        r2.name.should == r.name
+        r2.permissions.length.should == r.permissions.length
+        r2.owner.should == r.owner
+        r2.description.should == r.description
+      end
     end
   end
 
   describe "#to_file" do
-  end
+    it 'should create a file at the given path with the config\'s file name' do
+      c = Gitolite::Config.init
+      file = c.to_file('/tmp')
+      File.file?(File.join('/tmp', c.filename)).should be true
+      File.unlink(file)
+    end
 
-  describe "deny rules" do
-    it 'should maintain the order of rules within a config file' do
+    it 'should create a file at the given path when a different filename is specified' do
+      filename = "test.conf"
+      c = Gitolite::Config.init
+      c.filename = filename
+      file = c.to_file('/tmp')
+      File.file?(File.join('/tmp', filename)).should be true
+      File.unlink(file)
+    end
+
+    it 'should raise an ArgumentError when an invalid path is specified' do
+      c = Gitolite::Config.init
+      lambda { c.to_file('/does/not/exist') }.should raise_error(ArgumentError)
+    end
+
+    it 'should raise an ArgumentError when a filename is specified in the path' do
+      c = Gitolite::Config.init
+      lambda{ c.to_file('/home/test.rb') }.should raise_error(ArgumentError)
     end
   end
 

@@ -24,10 +24,16 @@ describe Gitolite::SSHKey do
       s.owner.should == 'bob@zilla.com'
     end
 
-    it "owner should be bob-ins@zilla-site.com for bob-ins@zilla-site.com@desktop.pub" do
-      key = File.join(key_dir, 'bob-ins@zilla-site.com@desktop.pub')
+    it "owner should be joe-bob@god-zilla.com for joe-bob@god-zilla.com@desktop.pub" do
+      key = File.join(key_dir, 'joe-bob@god-zilla.com@desktop.pub')
       s = SSHKey.from_file(key)
-      s.owner.should == 'bob-ins@zilla-site.com'
+      s.owner.should == 'joe-bob@god-zilla.com'
+    end
+
+    it "owner should be bob.joe@test.zilla.com for bob.joe@test.zilla.com@desktop.pub" do
+      key = File.join(key_dir, 'bob.joe@test.zilla.com@desktop.pub')
+      s = SSHKey.from_file(key)
+      s.owner.should == 'bob.joe@test.zilla.com'
     end
 
     it 'owner should be bob@zilla.com for bob@zilla.com@desktop.pub' do

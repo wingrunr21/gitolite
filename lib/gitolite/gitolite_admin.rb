@@ -121,5 +121,11 @@ module Gitolite
           keys
         end
       end
+
+      #Checks to see if the given path is a gitolite-admin repository
+      #A valid repository contains a conf folder, keydir folder,
+      #and a configuration file within the conf folder
+      def detect_gitolite_repository(dir)
+      end
   end
 end
