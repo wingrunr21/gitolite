@@ -29,26 +29,26 @@ describe Gitolite::Config::Repo do
     it 'should allow adding a permission to the permissions list' do
       @repo.add_permission("RW+")
       @repo.permissions.length.should == 1
-      @repo.permissions.first.first.should == "RW+"
+      @repo.permissions.first.keys.first.should == "RW+"
     end
 
     it 'should allow adding a permission while specifying a refex' do
       @repo.add_permission("RW+", "refs/heads/master")
       @repo.permissions.length.should == 1
-      @repo.permissions.first.first.should == "RW+"
-      @repo.permissions.first.last.first.first.should == "refs/heads/master"
+      @repo.permissions.first.keys.first.should == "RW+"
+      @repo.permissions.first.values.last.first.first.should == "refs/heads/master"
     end
 
     it 'should allow specifying users individually' do
       @repo.add_permission("RW+", "", "bob", "joe", "susan", "sam", "bill")
-      @repo.permissions["RW+"][""].should == %w[bob joe susan sam bill]
+      @repo.permissions.first["RW+"][""].should == %w[bob joe susan sam bill]
     end
 
     it 'should allow specifying users as an array' do
       users = %w[bob joe susan sam bill]
 
       @repo.add_permission("RW+", "", users)
-      @repo.permissions["RW+"][""].should == users
+      @repo.permissions.first["RW+"][""].should == users
     end
 
     it 'should not allow adding an invalid permission via an InvalidPermissionError' do
@@ -77,8 +77,8 @@ describe Gitolite::Config::Repo do
 
       @repo.add_permission("RW+", "", users)
       @repo.add_permission("RW+", "", more_users)
-      @repo.permissions["RW+"][""].should == users.concat(more_users)
-      @repo.permissions["RW+"][""].length.should == 9
+      @repo.permissions.first["RW+"][""].should == users.concat(more_users)
+      @repo.permissions.first["RW+"][""].length.should == 9
     end
 
     it 'should not list the same users twice for the same permission level' do
@@ -89,8 +89,8 @@ describe Gitolite::Config::Repo do
       @repo.add_permission("RW+", "", users)
       @repo.add_permission("RW+", "", more_users)
       @repo.add_permission("RW+", "", even_more_users)
-      @repo.permissions["RW+"][""].should == users.concat(more_users).concat(even_more_users).uniq!
-      @repo.permissions["RW+"][""].length.should == 11
+      @repo.permissions.first["RW+"][""].should == users.concat(more_users).concat(even_more_users).uniq!
+      @repo.permissions.first["RW+"][""].length.should == 11
     end
   end
 end
