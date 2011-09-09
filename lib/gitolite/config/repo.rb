@@ -9,7 +9,9 @@ module Gitolite
 
       def initialize(name)
         @name = name
-        @permissions = Array.new.push(Hash.new {|k,v| k[v] = Hash.new{|k2, v2| k2[v2] = [] }})
+        #Store the perm hash in a lambda since we have to create a new one on every deny rule
+        @perm_hash_lambda = lambda { Hash.new {|k,v| k[v] = Hash.new{|k2, v2| k2[v2] = [] }} }
+        @permissions = Array.new.push(@perm_hash_lambda.call)
         @config = {}
       end
 
@@ -17,7 +19,7 @@ module Gitolite
         if ALLOWED_PERMISSIONS.include? perm
           #Handle deny rules
           if perm == '-'
-            @permissions.push(Hash.new {|k,v| k[v] = Hash.new{|k2, v2| k2[v2] = [] }})
+            @permissions.push(@perm_hash_lambda.call)
           end
 
           @permissions.last[perm][refex].concat users.flatten
