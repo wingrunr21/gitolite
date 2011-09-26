@@ -80,8 +80,9 @@ module Gitolite
     #TODO: generate a better commit message
     #TODO: add the ability to specify the message, remote, and branch
     #TODO: detect existance of origin instead of just dying
-    def apply
-      @gl_admin.commit_index("Commit by gitolite gem")
+    def apply(commit_message = nil)
+      commit_message ||= "Commit by gitolite gem"
+      @gl_admin.commit_index(commit_message)
       @gl_admin.git.push({}, "origin", "master")
     end
 
