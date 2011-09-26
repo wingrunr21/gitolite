@@ -15,6 +15,10 @@ module Gitolite
         @config = {}
       end
 
+      def clean_permissions
+        @permissions = Array.new.push(@perm_hash_lambda.call)
+      end
+
       def add_permission(perm, refex = "", *users)
         if ALLOWED_PERMISSIONS.include? perm
           #Handle deny rules
