@@ -180,6 +180,42 @@ describe Gitolite::Config do
         r2.description.should == r.description
       end
     end
+
+    describe "#add_group" do
+      it 'should throw an ArgumentError for non-Gitolite::Config::Group objects passed in' do
+        lambda{ @config.add_group("not-a-group") }.should raise_error(ArgumentError)
+      end
+
+      it 'should add a given group to the groups list' do
+        g = Gitolite::Config::Group.new('cool_group')
+        ngroups = @config.groups.size
+        @config.add_group(g)
+        @config.groups.size.should eql (ngroups + 1)
+        @config.has_group?(:cool_group).should be true
+      end
+
+    end
+
+    describe "#rm_group" do
+      it 'should remove a group for the Gitolite::Config::Group object given' do
+        g = @config.get_group(:oss_repos)
+        g2 = @config.rm_group(g)
+        g2.name.should == g.name
+      end
+
+      it 'should remove a group given a string containing the name' do
+        g = @config.get_group(:oss_repos)
+        g2 = @config.rm_group('oss_repos')
+        g2.name.should == g.name
+      end
+
+      it 'should remove a group given a symbol representing the name' do
+        g = @config.get_group(:oss_repos)
+        g2 = @config.rm_group(:oss_repos)
+        g2.name.should == g.name
+      end
+    end
+
   end
 
   describe "#to_file" do

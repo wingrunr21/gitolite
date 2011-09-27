@@ -1,5 +1,4 @@
 require 'tempfile'
-require File.join(File.dirname(__FILE__), 'config', 'repo')
 
 module Gitolite
   class Config
@@ -7,7 +6,7 @@ module Gitolite
 
     def initialize(config)
       @repos = {}
-      @groups = Hash.new { |k,v| k[v] = [] }
+      @groups = {}
       @filename = File.basename(config)
       process_config(config)
     end
@@ -27,23 +26,38 @@ module Gitolite
     end
 
     def rm_repo(repo)
-      if repo.instance_of?(Gitolite::Config::Repo)
-        @repos.delete(repo.name)
-      else
-        repo.is_a?(Symbol) ? @repos.delete(repo.to_s) : @repos.delete(repo)
-      end
+      name = normalize_repo_name(repo)
+      @repos.delete(name)
     end
 
     def has_repo?(repo)
-      if repo.instance_of?(Gitolite::Config::Repo)
-        @repos.has_key?(repo.name)
-      else
-        repo.is_a?(Symbol) ? @repos.has_key?(repo.to_s) : @repos.has_key?(repo)
-      end
+      name = normalize_repo_name(repo)
+      @repos.has_key?(name)
     end
 
     def get_repo(repo)
-      repo.is_a?(Symbol) ? @repos[repo.to_s] : @repos[repo]
+      name = normalize_repo_name(repo)
+      @repos[name]
+    end
+
+    def add_group(group, owerwrite = false)
+      raise ArgumentError, "Group must be of type Gitolite::Config::Group!" unless group.instance_of? Gitolite::Config::Group
+      @groups[group.name] = group
+    end
+
+    def rm_group(group)
+      name = normalize_group_name(group)
+      @groups.delete(name)
+    end
+
+    def has_group?(group)
+      name = normalize_group_name(group)
+      @groups.has_key?(name)
+    end
+
+    def get_group(group)
+      name = normalize_group_name(group)
+      @groups[name]
     end
 
     def to_file(path=".", filename=@filename)
@@ -122,12 +136,12 @@ module Gitolite
                 @repos[c].set_git_config(key, value)
               end
             #group definition
-            when /^(@\S+) = ?(.*)/
+            when /^@(\S+) = ?(.*)/
               group = $1
               users = $2.split
 
-              @groups[group].concat users
-              @groups[group].uniq!
+              @groups[group] = Group.new(group) unless has_group?(group)
+              @groups[group].add_users(users)
             #gitweb definition
             when /^(\S+)(?: "(.*?)")? = "(.*)"$/
               repo = $1
@@ -155,6 +169,25 @@ module Gitolite
             else
               raise ParseError, "'#{line}' cannot be processed"
           end
+        end
+      end
+
+      def normalize_repo_name(repo)
+        normalize_name(repo, Gitolite::Config::Repo)
+      end
+
+      def normalize_group_name(group)
+        normalize_name(group, Gitolite::Config::Group)
+      end
+
+      def normalize_name(context, constant)
+        case context
+          when constant
+            context.name
+          when Symbol
+            context.to_s
+          else
+            context
         end
       end
 
