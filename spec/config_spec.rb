@@ -146,9 +146,46 @@ describe Gitolite::Config do
       end
 
       it 'should merge a given repo with an existing repo' do
+        #Make two new repos
+        repo1 = Gitolite::Config::Repo.new('cool_repo')
+        repo2 = Gitolite::Config::Repo.new('cool_repo')
+
+        #Add some perms to those repos
+        repo1.add_permission("RW+", "", "bob", "joe", "sam")
+        repo1.add_permission("R", "", "sue", "jen", "greg")
+        repo1.add_permission("-", "refs/tags/test[0-9]", "@students", "jessica")
+        repo1.add_permission("RW", "refs/tags/test[0-9]", "@teachers", "bill", "todd")
+        repo1.add_permission("R", "refs/tags/test[0-9]", "@profs")
+
+        repo2.add_permission("RW+", "", "jim", "cynthia", "arnold")
+        repo2.add_permission("R", "", "daniel", "mary", "ben")
+        repo2.add_permission("-", "refs/tags/test[0-9]", "@more_students", "stephanie")
+        repo2.add_permission("RW", "refs/tags/test[0-9]", "@student_teachers", "mike", "judy")
+        repo2.add_permission("R", "refs/tags/test[0-9]", "@leaders")
+
+        #Add the repos
+        @config.add_repo(repo1)
+        @config.add_repo(repo2)
+
+        #Make sure perms were properly merged
       end
 
       it 'should overwrite an existing repo when overwrite = true' do
+        #Make two new repos
+        repo1 = Gitolite::Config::Repo.new('cool_repo')
+        repo2 = Gitolite::Config::Repo.new('cool_repo')
+
+        #Add some perms to those repos
+        repo1.add_permission("RW+", "", "bob", "joe", "sam")
+        repo1.add_permission("R", "", "sue", "jen", "greg")
+        repo2.add_permission("RW+", "", "jim", "cynthia", "arnold")
+        repo2.add_permission("R", "", "daniel", "mary", "ben")
+
+        #Add the repos
+        @config.add_repo(repo1)
+        @config.add_repo(repo2, true)
+
+        #Make sure repo2 overwrote repo1
       end
     end
 
@@ -200,6 +237,7 @@ describe Gitolite::Config do
       it 'should remove a group for the Gitolite::Config::Group object given' do
         g = @config.get_group(:oss_repos)
         g2 = @config.rm_group(g)
+        g.should_not be nil
         g2.name.should == g.name
       end
 
