@@ -1,4 +1,6 @@
 require 'tempfile'
+require File.join(File.dirname(__FILE__), 'config', 'repo')
+require File.join(File.dirname(__FILE__), 'config', 'group')
 
 module Gitolite
   class Config
@@ -66,8 +68,8 @@ module Gitolite
       new_conf = File.join(path, filename)
       File.open(new_conf, "w") do |f|
         @groups.each do |k,v|
-          members = v.join(' ')
-          f.write "#{k.ljust(20)}=  #{members}\n"
+          members = v.users.join(' ')
+          f.write "#{v.gl_name.ljust(20)}=  #{members}\n"
         end
 
         gitweb_descs = []
@@ -116,7 +118,7 @@ module Gitolite
               repos.each do |r|
                 context << r
 
-                @repos[r] = Repo.new(r) unless has_repo? r
+                @repos[r] = Repo.new(r) unless has_repo?(r)
               end
             #repo permissions
             when /^(-|C|R|RW\+?(?:C?D?|D?C?)) (.* )?= (.+)/
@@ -172,14 +174,6 @@ module Gitolite
         end
       end
 
-      def normalize_repo_name(repo)
-        normalize_name(repo, Gitolite::Config::Repo)
-      end
-
-      def normalize_group_name(group)
-        normalize_name(group, Gitolite::Config::Group)
-      end
-
       def normalize_name(context, constant)
         case context
           when constant
@@ -188,6 +182,21 @@ module Gitolite
             context.to_s
           else
             context
+        end
+      end
+
+      def method_missing(meth, *args, &block)
+        if meth.to_s =~ /normalize_(\w+)_name/
+          #Could use Object.const_get to figure out the constant here
+          #but for only two cases, this is more readable
+          case $1
+            when "repo"
+              normalize_name(args[0], Gitolite::Config::Repo)
+            when "group"
+              normalize_name(args[0], Gitolite::Config::Group)
+          end
+        else
+          super
         end
       end
 
