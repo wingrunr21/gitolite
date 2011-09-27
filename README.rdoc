@@ -128,7 +128,11 @@ This gem should work properly on Ruby 1.8.x with the exception of deny rules.  I
 The grit gem (which is used for under-the-hood git operations) does not currently support Windows.  Until it does, gitolite will be unable to support Windows.
 
 == Contributing
-Because the gem is still pre-release, I'd prefer not to take pull requests at this time.  If you find an issue or would like to request a feature, please file an issue instead.
+* Tests!  If you ask me to pull changes that are not adequately tested,  I'm not going to do it.
+* If you introduce new features/public methods on objects, you must update the README.
+
+=== Contributors
+* Alexander Simonov - {simonoff}[https://github.com/simonoff]
 
 == Documentation
 * Rdoc is coming soon
