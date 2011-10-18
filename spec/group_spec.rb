@@ -4,15 +4,21 @@ require 'spec_helper'
 describe Gitolite::Config::Group do
   describe "#new" do
     it "should create a new group with an empty list of users" do
-      group = Gitolite::Config::Group.new("@testgroup")
+      group = Gitolite::Config::Group.new("testgroup")
       group.users.empty?.should be true
-      group.name.should == "@testgroup"
+      group.name.should == "testgroup"
+    end
+
+    it "should create a new group with a name containing #{Gitolite::Config::Group::PREPEND_CHAR}" do
+      name = "#{Gitolite::Config::Group::PREPEND_CHAR}testgroup"
+      group = Gitolite::Config::Group.new(name)
+      group.name.should == "testgroup"
     end
   end
 
   describe "users" do
     before :each do
-      @group = Gitolite::Config::Group.new('@testgroup')
+      @group = Gitolite::Config::Group.new('testgroup')
     end
 
     describe "#add_user" do
@@ -113,7 +119,7 @@ describe Gitolite::Config::Group do
   end
 
   describe "#to_s" do
-    group = Gitolite::Config::Group.new("@testgroup")
+    group = Gitolite::Config::Group.new("testgroup")
     group.add_users("bob", "joe", "sam", "sue")
     group.to_s.should == "@testgroup          = bob joe sam sue\n" #10 spaces after @testgroup
   end

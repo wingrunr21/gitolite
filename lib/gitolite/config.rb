@@ -42,7 +42,7 @@ module Gitolite
       @repos[name]
     end
 
-    def add_group(group, owerwrite = false)
+    def add_group(group, overwrite = false)
       raise ArgumentError, "Group must be of type Gitolite::Config::Group!" unless group.instance_of? Gitolite::Config::Group
       @groups[group.name] = group
     end
@@ -67,10 +67,8 @@ module Gitolite
 
       new_conf = File.join(path, filename)
       File.open(new_conf, "w") do |f|
-        @groups.each do |k,v|
-          members = v.users.join(' ')
-          f.write "#{v.gl_name.ljust(20)}=  #{members}\n"
-        end
+        #Output groups
+        @groups.each_value {|group| f.write group.to_s }
 
         gitweb_descs = []
         @repos.each do |k, v|
@@ -138,7 +136,7 @@ module Gitolite
                 @repos[c].set_git_config(key, value)
               end
             #group definition
-            when /^@(\S+) = ?(.*)/
+            when /^#{Group::PREPEND_CHAR}(\S+) = ?(.*)/
               group = $1
               users = $2.split
 
@@ -174,7 +172,8 @@ module Gitolite
         end
       end
 
-      def normalize_name(context, constant)
+      # Normalizes the various different input objects to Strings
+      def normalize_name(context, constant = nil)
         case context
           when constant
             context.name

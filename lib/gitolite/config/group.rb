@@ -6,8 +6,12 @@ module Gitolite
     class Group
       attr_accessor :name, :users
 
+      PREPEND_CHAR = '@'
+
       def initialize(name)
-        @name = name
+        # naively remove the prepend char
+        # I don't think you can have two of them in a group name
+        @name = name.gsub(PREPEND_CHAR, '')
         @users = []
       end
 
@@ -39,7 +43,8 @@ module Gitolite
 
       def to_s
         members = @users.join(' ')
-        "#{@name.ljust(20)}= #{members}\n"
+        name = "#{PREPEND_CHAR}#{@name}"
+        "#{name.ljust(20)}= #{members}\n"
       end
     end
   end

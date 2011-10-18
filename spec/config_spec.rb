@@ -217,6 +217,41 @@ describe Gitolite::Config do
         r2.description.should == r.description
       end
     end
+  end
+
+  describe "group management" do
+    before :each do
+      @config = Gitolite::Config.new(File.join(conf_dir, 'complicated.conf'))
+    end
+
+    describe "#has_group?" do
+      it 'should find the staff group using a symbol' do
+        @config.has_group?(:staff).should be true
+      end
+
+      it 'should find the staff group using a string' do
+       @config.has_group?('staff').should be true
+      end
+
+      it 'should find the staff group using a Gitolite::Config::Group object' do
+        g = Gitolite::Config::Group.new("staff")
+        @config.has_group?(g).should be true
+      end
+    end
+
+    describe "#get_group" do
+      it 'should return the Gitolite::Config::Group object for the group name String' do
+        g = @config.get_group("staff")
+        g.is_a?(Gitolite::Config::Group).should be true
+        g.size.should == 6
+      end
+
+      it 'should return the Gitolite::Config::Group object for the group name Symbol' do
+        g = @config.get_group(:staff)
+        g.is_a?(Gitolite::Config::Group).should be true
+        g.size.should == 6
+      end
+    end
 
     describe "#add_group" do
       it 'should throw an ArgumentError for non-Gitolite::Config::Group objects passed in' do
