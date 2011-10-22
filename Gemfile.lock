@@ -15,6 +15,7 @@ GEM
       mime-types (~> 1.15)
     hashery (1.4.0)
     mime-types (1.16)
+    rcov (0.9.11)
     rdoc (3.9.4)
     rspec (2.6.0)
       rspec-core (~> 2.6.0)
@@ -31,5 +32,6 @@ PLATFORMS
 DEPENDENCIES
   forgery (~> 0.5.0)
   gitolite!
+  rcov (~> 0.9.11)
   rdoc (~> 3.9.4)
   rspec (~> 2.6.0)
