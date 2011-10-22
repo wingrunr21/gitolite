@@ -25,7 +25,7 @@ module Gitolite
       raise "#{key} does not exist!" unless File.exists?(key)
 
       #Get our owner and location
-      File.basename(key) =~ /^(\w+(?:@(?:\w+\.)+\D{2,4})?)(?:@(\w+))?.pub$/i
+      File.basename(key) =~ /^([\w\.-]+(?:@(?:[\w-]+\.)+\D{2,4})?)(?:@(\w+))?.pub$/i
       owner = $1
       location = $2 || ""
 
