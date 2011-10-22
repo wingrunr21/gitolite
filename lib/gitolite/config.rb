@@ -15,7 +15,7 @@ module Gitolite
 
     def self.init(filename = "gitolite.conf")
       file = Tempfile.new(filename)
-      conf = self.new(file)
+      conf = self.new(file.path)
       conf.filename = filename #kill suffix added by Tempfile
       file.close(unlink_now = true)
       conf

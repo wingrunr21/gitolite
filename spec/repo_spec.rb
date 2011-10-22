@@ -1,4 +1,5 @@
-require 'gitolite/config'
+require 'gitolite/config/repo'
+require 'spec_helper'
 
 describe Gitolite::Config::Repo do
   before(:each) do

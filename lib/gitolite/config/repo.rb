@@ -1,3 +1,5 @@
+require 'hashery'
+
 module Gitolite
   class Config
     #Represents a repo inside the gitolite configuration.  The name, permissions, and git config
@@ -8,11 +10,14 @@ module Gitolite
       attr_accessor :permissions, :name, :config, :owner, :description
 
       def initialize(name)
-        @name = name
         #Store the perm hash in a lambda since we have to create a new one on every deny rule
-        @perm_hash_lambda = lambda { Hash.new {|k,v| k[v] = Hash.new{|k2, v2| k2[v2] = [] }} }
+        #The perm hash is stored as a 2D hash, with individual permissions being the first
+        #degree and individual refexes being the second degree.  Both Hashes must respect order
+        @perm_hash_lambda = lambda { OrderedHash.new {|k,v| k[v] = OrderedHash.new{|k2, v2| k2[v2] = [] }} }
         @permissions = Array.new.push(@perm_hash_lambda.call)
-        @config = {}
+
+        @name = name
+        @config = {} #git config
       end
 
       def clean_permissions
