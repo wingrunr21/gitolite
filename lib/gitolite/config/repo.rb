@@ -5,7 +5,7 @@ module Gitolite
     #Represents a repo inside the gitolite configuration.  The name, permissions, and git config
     #options are all encapsulated in this class
     class Repo
-      ALLOWED_PERMISSIONS = ['C', 'R', 'RW', 'RW+', 'RWC', 'RW+C', 'RWD', 'RW+D', 'RWCD', 'RW+CD', '-']
+      ALLOWED_PERMISSIONS = /-|R|RW+?C?D?/
 
       attr_accessor :permissions, :name, :config, :owner, :description
 
@@ -25,7 +25,7 @@ module Gitolite
       end
 
       def add_permission(perm, refex = "", *users)
-        if ALLOWED_PERMISSIONS.include? perm
+        if perm =~ ALLOWED_PERMISSIONS
           #Handle deny rules
           if perm == '-'
             @permissions.push(@perm_hash_lambda.call)
