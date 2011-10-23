@@ -27,9 +27,15 @@ module Gitolite
     #   conf
     #     gitolite.conf
     #   keydir
-    #
-    # TODO: Make this method detect an existing gitolite-admin repo
     def self.bootstrap(path, options = {})
+      if self.is_gitolite_admin_repo?(path)
+        if options[:overwrite]
+          FileUtils.rm_rf(File.join(path, '*'))
+        else
+          return self.new(path)
+        end
+      end
+
       FileUtils.mkdir_p([File.join(path,"conf"), File.join(path,"keydir")])
 
       options[:perm] ||= "RW+"
@@ -78,10 +84,9 @@ module Gitolite
     #to origin
     #
     #TODO: generate a better commit message
-    #TODO: add the ability to specify the message, remote, and branch
+    #TODO: add the ability to specify the remote and branch
     #TODO: detect existance of origin instead of just dying
-    def apply(commit_message = nil)
-      commit_message ||= "Commit by gitolite gem"
+    def apply(commit_message = "Commit by gitolite gem")
       @gl_admin.commit_index(commit_message)
       @gl_admin.git.push({}, "origin", "master")
     end
@@ -98,6 +103,24 @@ module Gitolite
 
     def rm_key(key)
       @ssh_keys[key.owner].delete key
+    end
+
+    #Checks to see if the given path is a gitolite-admin repository
+    #A valid repository contains a conf folder, keydir folder,
+    #and a configuration file within the conf folder
+    def self.is_gitolite_admin_repo?(dir)
+      # First check if it is a git repository
+      begin
+        Grit::Repo.new(dir)
+      rescue Grit::InvalidGitRepositoryError
+        return false
+      end
+
+      # If we got here it is a valid git repo,
+      # now check directory structure
+      File.exists?(File.join(dir, 'conf')) &&
+        File.exists?(File.join(dir, 'keydir')) &&
+        !Dir.glob(File.join(dir, 'conf', '*.conf')).empty?
     end
 
     private
@@ -121,12 +144,6 @@ module Gitolite
           keys = Dir.glob("**/*.pub")
           keys
         end
-      end
-
-      #Checks to see if the given path is a gitolite-admin repository
-      #A valid repository contains a conf folder, keydir folder,
-      #and a configuration file within the conf folder
-      def detect_gitolite_repository(dir)
       end
   end
 end
