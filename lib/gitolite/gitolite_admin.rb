@@ -6,6 +6,9 @@ module Gitolite
     CONFDIR = "conf"
     KEYDIR = "keydir"
 
+    #Gitolite gem's default git commit message
+    DEFAULT_COMMIT_MSG = "Committed by the gitolite gem"
+
     # Intialize with the path to
     # the gitolite-admin repository
     def initialize(path, options = {})
@@ -86,14 +89,14 @@ module Gitolite
     #TODO: generate a better commit message
     #TODO: add the ability to specify the remote and branch
     #TODO: detect existance of origin instead of just dying
-    def apply(commit_message = "Commit by gitolite gem")
+    def apply(commit_message = DEFAULT_COMMIT_MSG)
       @gl_admin.commit_index(commit_message)
       @gl_admin.git.push({}, "origin", "master")
     end
 
-    def save_and_apply
+    def save_and_apply(commit_message = DEFAULT_COMMIT_MSG)
       self.save
-      self.apply
+      self.apply(commit_message)
     end
 
     def add_key(key)
@@ -102,6 +105,7 @@ module Gitolite
     end
 
     def rm_key(key)
+      raise "Key must be of type Gitolite::SSHKey!" unless key.instance_of? Gitolite::SSHKey
       @ssh_keys[key.owner].delete key
     end
 
