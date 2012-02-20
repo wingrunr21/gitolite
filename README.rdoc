@@ -82,13 +82,18 @@ This method can only be called on an existing gitolite-admin repo.  If you need 
 
 === SSH Key Management
 
-  #Two ways to create keys: manually or from an existing key
+  #Three ways to create keys: manually, from an existing key, or from a string representing a key
   key = Gitolite::SSHKey.new("ssh-rsa", "big-public-key-blob", "email")
   key2 = Gitolite::SSHKey.from_file("/path/to/ssh/key.pub")
+
+  key_string = File.read("/path/to/ssh/key.pub")
+  key3 = Gitolite::SSHKey.from_string(key_string, "owner")
+
 
   #Add the keys
   ga_repo.add_key(key)
   ga_repo.add_key(key2)
+  ga_repo.add_key(key3)
 
   #Remove key2
   ga_repo.rm_key(key2)
@@ -106,6 +111,22 @@ This method will commit all changes with a generic message (will be improved upo
 
 === Save and apply
   ga_repo.save_and_apply
+
+=== Updating remote changes
+  #In order to avoid conflicts, this will perform a reset! by default
+  #pass :reset => false to disable the reset (Git conflicts will have to be manually fixed)
+  ga_repo.update
+  ga_repo.update(:reset => false)
+
+  #Update while performing a rebase
+  ga_repo.update(:rebase => true)
+
+=== Reloading from the file system
+  ga_repo.reload!
+
+=== Resetting to HEAD, destroying all local changes (including untracked files)
+  #This will also perform a reload!
+  ga_repo.reset!
 
 === Bootstrapping
   ga_repo = GitoliteAdmin.bootstrap("/path/to/new/gitolite/repo")

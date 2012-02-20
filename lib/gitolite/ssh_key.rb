@@ -21,7 +21,6 @@ module Gitolite
     end
 
     def self.from_file(key)
-
       raise "#{key} does not exist!" unless File.exists?(key)
 
       #Get our owner and location
@@ -29,8 +28,23 @@ module Gitolite
       owner = $1
       location = $2 || ""
 
+      # Use string key constructor
+      self.from_string(File.read(key), owner, location)
+    end
+
+    # Construct a SSHKey from a string
+    def self.from_string(key_string, owner, location = "")
+      if owner.nil?
+        raise ArgumentError, "owner was nil, you must specify an owner"
+      end
+
       #Get parts of the key
-      type, blob, email = File.read(key).split
+      type, blob, email = key_string.split
+
+      # We need at least a type or blob
+      if type.nil? || blob.nil?
+        raise ArgumentError, "'#{key_string}' is not a valid SSH key string"
+      end
 
       #If the key didn't have an email, just use the owner
       if email.nil?

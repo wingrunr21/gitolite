@@ -12,14 +12,15 @@ module Gitolite
     # Intialize with the path to
     # the gitolite-admin repository
     def initialize(path, options = {})
+      @path = path
       @gl_admin = Grit::Repo.new(path)
 
       @conf = options[:conf] || CONF
       @confdir = options[:confdir] || CONFDIR
       @keydir = options[:keydir] || KEYDIR
 
-      @ssh_keys = load_keys(File.join(path, @keydir))
-      @config = Config.new(File.join(path, @confdir, @conf))
+      # Load the ssh keys and the configuration
+      load_data
     end
 
     # This method will bootstrap a gitolite-admin repo
@@ -83,6 +84,23 @@ module Gitolite
       end
     end
 
+    # This method will destroy all local tracked changes, resetting the local gitolite
+    # git repo to HEAD and reloading the entire repository
+    # Note that this will also delete all untracked files
+    def reset!
+      Dir.chdir(@gl_admin.working_dir) do
+        @gl_admin.git.reset({:hard => true}, 'HEAD')
+        @gl_admin.git.clean({:d => true, :q => true, :f => true})
+      end
+      reload!
+    end
+
+    # This method will destroy the in-memory data structures and reload everything
+    # from the file system
+    def reload!
+      load_data
+    end
+
     #commits all staged changes and pushes back
     #to origin
     #
@@ -97,6 +115,20 @@ module Gitolite
     def save_and_apply(commit_message = DEFAULT_COMMIT_MSG)
       self.save
       self.apply(commit_message)
+    end
+
+    # Updates the repo with changes from remote master
+    def update(*args)
+      options = {:reset => true, :rebase => false}
+      options.merge! args.first || {}
+
+      reset! if options[:reset]
+
+      Dir.chdir(@gl_admin.working_dir) do
+        @gl_admin.git.pull({:rebase => options[:rebase]}, "origin", "master")
+      end
+
+      reload!
     end
 
     def add_key(key)
@@ -128,6 +160,11 @@ module Gitolite
     end
 
     private
+      def load_data
+        @ssh_keys = load_keys(File.join(@path, @keydir))
+        @config = Config.new(File.join(@path, @confdir, @conf))
+      end
+
       #Loads all .pub files in the gitolite-admin
       #keydir directory
       def load_keys(path)

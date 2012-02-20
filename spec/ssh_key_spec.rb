@@ -4,7 +4,67 @@ include Gitolite
 
 describe Gitolite::SSHKey do
   key_dir = File.join(File.dirname(__FILE__),'keys')
-  
+
+  describe "#from_string" do
+    it 'should construct an SSH key from a string' do
+      key = File.join(key_dir, 'bob.pub')
+      key_string = File.read(key)
+      s = SSHKey.from_string(key_string, "bob")
+
+      s.owner.should == 'bob'
+      s.location.should == ""
+      s.blob.should == key_string.split[1]
+    end
+
+    it 'should raise an ArgumentError when an owner isnt specified' do
+      key_string = "not_a_real_key"
+      lambda { SSHKey.from_string(key_string) }.should raise_error
+    end
+
+    it 'should have a location when one is specified' do
+      key = File.join(key_dir, 'bob.pub')
+      key_string = File.read(key)
+      s = SSHKey.from_string(key_string, "bob", "kansas")
+
+      s.owner.should == 'bob'
+      s.location.should == "kansas"
+      s.blob.should == key_string.split[1]
+    end
+
+    it 'should raise an ArgumentError when owner is nil' do
+      lambda { SSHKey.from_string("bad_string", nil) }.should raise_error
+    end
+
+    it 'should raise an ArgumentError when we get an invalid SSHKey string' do
+      lambda { SSHKey.from_string("bad_string", "bob") }.should raise_error
+    end
+  end
+
+  describe "#from_file" do
+    it 'should load a key from a file' do
+      key = File.join(key_dir, 'bob.pub')
+      s = SSHKey.from_file(key)
+      key_string = File.read(key).split
+
+      s.owner.should == "bob"
+      s.blob.should == key_string[1]
+    end
+
+    it 'should load a key with a location from a file' do
+      key = File.join(key_dir, 'bob@desktop.pub')
+      s = SSHKey.from_file(key)
+      s.owner.should == 'bob'
+      s.location.should == 'desktop'
+    end
+
+    it 'should load a key with owner and location from a file' do
+      key = File.join(key_dir, 'joe-bob@god-zilla.com@desktop.pub')
+      s = SSHKey.from_file(key)
+      s.owner.should == 'joe-bob@god-zilla.com'
+      s.location.should == 'desktop'
+    end
+  end
+
   describe '#owner' do
     it 'owner should be bob for bob.pub' do
       key = File.join(key_dir, 'bob.pub')
@@ -136,92 +196,92 @@ describe Gitolite::SSHKey do
       s.owner.should == s.email
     end
   end
-  
+
   describe '#new' do
     it 'should create a valid ssh key' do
       type = "ssh-rsa"
       blob = Forgery::Basic.text(:at_least => 372, :at_most => 372)
       email = Forgery::Internet.email_address
-      
+
       s = SSHKey.new(type, blob, email)
-      
+
       s.to_s.should == [type, blob, email].join(' ')
       s.owner.should == email
     end
-    
+
     it 'should create a valid ssh key while specifying an owner' do
       type = "ssh-rsa"
       blob = Forgery::Basic.text(:at_least => 372, :at_most => 372)
       email = Forgery::Internet.email_address
       owner = Forgery::Name.first_name
-      
+
       s = SSHKey.new(type, blob, email, owner)
-      
+
       s.to_s.should == [type, blob, email].join(' ')
       s.owner.should == owner
     end
-    
+
     it 'should create a valid ssh key while specifying an owner and location' do
       type = "ssh-rsa"
       blob = Forgery::Basic.text(:at_least => 372, :at_most => 372)
       email = Forgery::Internet.email_address
       owner = Forgery::Name.first_name
       location = Forgery::Name.location
-      
+
       s = SSHKey.new(type, blob, email, owner, location)
-      
+
       s.to_s.should == [type, blob, email].join(' ')
       s.owner.should == owner
       s.location.should == location
     end
   end
-  
+
   describe '#filename' do
     it 'should create a filename that is the <email>.pub' do
       type = "ssh-rsa"
       blob = Forgery::Basic.text(:at_least => 372, :at_most => 372)
       email = Forgery::Internet.email_address
-      
+
       s = SSHKey.new(type, blob, email)
-      
+
       s.filename.should == "#{email}.pub"
     end
-    
+
     it 'should create a filename that is the <owner>.pub' do
       type = "ssh-rsa"
       blob = Forgery::Basic.text(:at_least => 372, :at_most => 372)
       email = Forgery::Internet.email_address
       owner = Forgery::Name.first_name
-      
+
       s = SSHKey.new(type, blob, email, owner)
-      
+
       s.filename.should == "#{owner}.pub"
     end
-    
+
     it 'should create a filename that is the <email>@<location>.pub' do
       type = "ssh-rsa"
       blob = Forgery::Basic.text(:at_least => 372, :at_most => 372)
       email = Forgery::Internet.email_address
       location = Forgery::Basic.text(:at_least => 8, :at_most => 15)
-      
+
       s = SSHKey.new(type, blob, email, nil, location)
-      
+
       s.filename.should == "#{email}@#{location}.pub"
     end
-    
+
     it 'should create a filename that is the <owner>@<location>.pub' do
       type = "ssh-rsa"
       blob = Forgery::Basic.text(:at_least => 372, :at_most => 372)
       email = Forgery::Internet.email_address
       owner = Forgery::Name.first_name
       location = Forgery::Basic.text(:at_least => 8, :at_most => 15)
-      
+
       s = SSHKey.new(type, blob, email, owner, location)
-      
+
       s.filename.should == "#{owner}@#{location}.pub"
     end
   end
-  
+
   describe '#to_file' do
     it 'should write a "valid" SSH public key to the file system' do
       type = "ssh-rsa"
@@ -229,40 +289,40 @@ describe Gitolite::SSHKey do
       email = Forgery::Internet.email_address
       owner = Forgery::Name.first_name
       location = Forgery::Basic.text(:at_least => 8, :at_most => 15)
-      
+
       s = SSHKey.new(type, blob, email, owner, location)
-      
+
       tmpdir = Dir.tmpdir
       s.to_file(tmpdir)
-      
+
       s.to_s.should == File.read(File.join(tmpdir, s.filename))
     end
-    
+
     it 'should return the filename written' do
       type = "ssh-rsa"
       blob = Forgery::Basic.text(:at_least => 372, :at_most => 372)
       email = Forgery::Internet.email_address
       owner = Forgery::Name.first_name
       location = Forgery::Basic.text(:at_least => 8, :at_most => 15)
-      
+
       s = SSHKey.new(type, blob, email, owner, location)
-      
+
       tmpdir = Dir.tmpdir
-      
-      
+
+
       s.to_file(tmpdir).should == File.join(tmpdir, s.filename)
     end
   end
-  
+
   describe '==' do
     it 'should have two keys equalling one another' do
       type = "ssh-rsa"
       blob = Forgery::Basic.text(:at_least => 372, :at_most => 372)
       email = Forgery::Internet.email_address
-      
+
       s1 = SSHKey.new(type, blob, email)
       s2 = SSHKey.new(type, blob, email)
-      
+
       s1.should == s2
     end
   end
