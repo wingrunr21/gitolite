@@ -57,6 +57,92 @@ describe Gitolite::Config::Repo do
     end
   end
 
+  describe "permissions" do
+    before(:each) do
+      @repo = Gitolite::Config::Repo.new("CoolRepo")
+    end
+
+    it 'should allow adding the permission C' do
+      @repo.add_permission("C", "", "bob")
+    end
+
+    it 'should allow adding the permission -' do
+      @repo.add_permission("-", "", "bob")
+    end
+
+    it 'should allow adding the permission R' do
+      @repo.add_permission("R", "", "bob")
+    end
+
+    it 'should allow adding the permission RM' do
+      @repo.add_permission("RM", "", "bob")
+    end
+
+    it 'should allow adding the permission RW' do
+      @repo.add_permission("RW", "", "bob")
+    end
+
+    it 'should allow adding the permission RWM' do
+      @repo.add_permission("RWM", "", "bob")
+    end
+
+    it 'should allow adding the permission RW+' do
+      @repo.add_permission("RW+", "", "bob")
+    end
+
+    it 'should allow adding the permission RW+M' do
+      @repo.add_permission("RW+M", "", "bob")
+    end
+
+    it 'should allow adding the permission RWC' do
+      @repo.add_permission("RWC", "", "bob")
+    end
+
+    it 'should allow adding the permission RWCM' do
+      @repo.add_permission("RWCM", "", "bob")
+    end
+
+    it 'should allow adding the permission RW+C' do
+      @repo.add_permission("RW+C", "", "bob")
+    end
+
+    it 'should allow adding the permission RW+CM' do
+      @repo.add_permission("RW+CM", "", "bob")
+    end
+
+    it 'should allow adding the permission RWD' do
+      @repo.add_permission("RWD", "", "bob")
+    end
+
+    it 'should allow adding the permission RWDM' do
+      @repo.add_permission("RWDM", "", "bob")
+    end
+
+    it 'should allow adding the permission RW+D' do
+      @repo.add_permission("RW+D", "", "bob")
+    end
+
+    it 'should allow adding the permission RW+DM' do
+      @repo.add_permission("RW+DM", "", "bob")
+    end
+
+    it 'should allow adding the permission RWCD' do
+      @repo.add_permission("RWCD", "", "bob")
+    end
+
+    it 'should allow adding the permission RWCDM' do
+      @repo.add_permission("RWCDM", "", "bob")
+    end
+
+    it 'should allow adding the permission RW+CD' do
+      @repo.add_permission("RW+CD", "", "bob")
+    end
+
+    it 'should allow adding the permission RW+CDM' do
+      @repo.add_permission("RW+CDM", "", "bob")
+    end
+  end
+
   describe 'git config options' do
     it 'should allow setting a git configuration option' do
       email = "bob@zilla.com"

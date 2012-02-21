@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    gitolite (0.0.3.alpha)
+    gitolite (0.0.4.alpha)
       grit (~> 2.4.1)
       hashery (~> 1.4.0)
 
@@ -14,7 +14,7 @@ GEM
       diff-lcs (~> 1.1)
       mime-types (~> 1.15)
     hashery (1.4.0)
-    mime-types (1.16)
+    mime-types (1.17.2)
     rcov (0.9.11)
     rdoc (3.9.4)
     rspec (2.6.0)

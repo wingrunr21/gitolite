@@ -5,7 +5,7 @@ module Gitolite
     #Represents a repo inside the gitolite configuration.  The name, permissions, and git config
     #options are all encapsulated in this class
     class Repo
-      ALLOWED_PERMISSIONS = /-|R|RW+?C?D?/
+      ALLOWED_PERMISSIONS = /-|C|R|RW\+?(?:C?D?|D?C?)M?/
 
       attr_accessor :permissions, :name, :config, :owner, :description
 
