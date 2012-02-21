@@ -118,9 +118,8 @@ module Gitolite
     end
 
     # Updates the repo with changes from remote master
-    def update(*args)
-      options = {:reset => true, :rebase => false}
-      options.merge! args.first || {}
+    def update(options = {})
+      options = {:reset => true, :rebase => false }.merge(options)
 
       reset! if options[:reset]
 
