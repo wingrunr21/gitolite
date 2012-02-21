@@ -57,7 +57,7 @@ This method can only be called on an existing gitolite-admin repo.  If you need 
 
   repo = Gitolite::Config::Repo.new("AwesomeRepo")
 
-  #For a list of permissions, see https://github.com/sitaramc/gitolite/blob/pu/doc/gitolite.conf.mkd
+  #For a list of permissions, see http://sitaramc.github.com/gitolite/conf.html#gitolite
   repo.add_permission("RW+", "", "bob", "joe", "susan")
 
   #Add repo to config
