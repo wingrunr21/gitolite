@@ -160,8 +160,6 @@ The grit gem (which is used for under-the-hood git operations) does not currentl
 == Future
 * support folders in the keydir
 * support include tags
-* support pull operations to sync the local gitolite-admin repository with the server
 * cleanup methods to make adding and removing easier (like add_key should accept an array of keys)
 * Rails integration
 * Make the gem thread safe
-* Add full support for Wildcard repos
