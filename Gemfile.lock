@@ -2,29 +2,39 @@ PATH
   remote: .
   specs:
     gitolite (0.0.4.alpha)
-      grit (~> 2.4.1)
-      hashery (~> 1.4.0)
+      grit (~> 2.5.0)
+      hashery (~> 1.5.0)
 
 GEM
   remote: http://rubygems.org/
   specs:
-    diff-lcs (1.1.2)
+    blankslate (2.1.2.4)
+    diff-lcs (1.1.3)
     forgery (0.5.0)
-    grit (2.4.1)
+    grit (2.5.0)
       diff-lcs (~> 1.1)
       mime-types (~> 1.15)
-    hashery (1.4.0)
-    mime-types (1.17.2)
-    rcov (0.9.11)
-    rdoc (3.9.4)
-    rspec (2.6.0)
-      rspec-core (~> 2.6.0)
-      rspec-expectations (~> 2.6.0)
-      rspec-mocks (~> 2.6.0)
-    rspec-core (2.6.0)
-    rspec-expectations (2.6.0)
-      diff-lcs (~> 1.1.2)
-    rspec-mocks (2.6.0)
+      posix-spawn (~> 0.3.6)
+    hashery (1.5.0)
+      blankslate
+    json (1.6.6)
+    mime-types (1.18)
+    multi_json (1.3.2)
+    posix-spawn (0.3.6)
+    rdoc (3.12)
+      json (~> 1.4)
+    rspec (2.9.0)
+      rspec-core (~> 2.9.0)
+      rspec-expectations (~> 2.9.0)
+      rspec-mocks (~> 2.9.0)
+    rspec-core (2.9.0)
+    rspec-expectations (2.9.1)
+      diff-lcs (~> 1.1.3)
+    rspec-mocks (2.9.0)
+    simplecov (0.6.2)
+      multi_json (~> 1.3)
+      simplecov-html (~> 0.5.3)
+    simplecov-html (0.5.3)
 
 PLATFORMS
   ruby
@@ -32,6 +42,6 @@ PLATFORMS
 DEPENDENCIES
   forgery (~> 0.5.0)
   gitolite!
-  rcov (~> 0.9.11)
-  rdoc (~> 3.9.4)
-  rspec (~> 2.6.0)
+  rdoc (~> 3.12)
+  rspec (~> 2.9.0)
+  simplecov (~> 0.6.2)

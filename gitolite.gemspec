@@ -14,12 +14,12 @@ Gem::Specification.new do |s|
 
   s.rubyforge_project = "gitolite"
 
-  s.add_development_dependency "rspec", "~> 2.6.0"
+  s.add_development_dependency "rspec", "~> 2.9.0"
   s.add_development_dependency "forgery", "~> 0.5.0"
-  s.add_development_dependency "rdoc", "~> 3.9.4"
-  s.add_development_dependency "rcov", "~> 0.9.11"
-  s.add_dependency "grit", "~> 2.4.1"
-  s.add_dependency "hashery", "~> 1.4.0"
+  s.add_development_dependency "rdoc", "~> 3.12"
+  s.add_development_dependency "simplecov", "~> 0.6.2"
+  s.add_dependency "grit", "~> 2.5.0"
+  s.add_dependency "hashery", "~> 1.5.0"
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
