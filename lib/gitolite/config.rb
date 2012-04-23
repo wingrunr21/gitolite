@@ -119,7 +119,7 @@ module Gitolite
                 @repos[r] = Repo.new(r) unless has_repo?(r)
               end
             #repo permissions
-            when /^(-|C|R|RW\+?(?:C?D?|D?C?)) (.* )?= (.+)/
+            when /^(-|C|R|RW\+?(?:C?D?|D?C?)M?) (.* )?= (.+)/
               perm = $1
               refex = $2 || ""
               users = $3.split
