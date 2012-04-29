@@ -1,5 +1,3 @@
-require 'hashery'
-
 module Gitolite
   class Config
     #Represents a repo inside the gitolite configuration.  The name, permissions, and git config

@@ -1,3 +1,4 @@
+require 'hashery'
 require 'gitolite/config/repo'
 require 'spec_helper'
 
