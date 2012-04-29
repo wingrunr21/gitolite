@@ -1,3 +1,4 @@
+require 'plexus'
 require 'gitolite/config'
 require 'spec_helper'
 
@@ -316,6 +317,69 @@ describe Gitolite::Config do
     it 'should raise an ArgumentError when a filename is specified in the path' do
       c = Gitolite::Config.init
       lambda{ c.to_file('/home/test.rb') }.should raise_error(ArgumentError)
+    end
+
+    it 'should resolve group dependencies such that all groups are defined before they are used' do
+      c = Gitolite::Config.init
+      c.filename = "test_deptree.conf"
+
+      # Build some groups out of order
+      g = Gitolite::Config::Group.new "groupa"
+      g.add_users "bob", "@groupb"
+      c.add_group(g)
+
+      g = Gitolite::Config::Group.new "groupb"
+      g.add_users "joe", "sam", "susan", "andrew"
+      c.add_group(g)
+
+      g = Gitolite::Config::Group.new "groupc"
+      g.add_users "jane", "@groupb", "brandon"
+      c.add_group(g)
+
+      g = Gitolite::Config::Group.new "groupd"
+      g.add_users "larry", "@groupc"
+      c.add_group(g)
+
+      # Write the config to a file
+      file = c.to_file('/tmp')
+
+      # Read the conf and make sure our order is correct
+      f = File.read(file)
+      lines = f.lines.map {|l| l.strip}
+
+      # Compare the file lines.  Spacing is important here since we are doing a direct comparision
+      lines[0].should == "@groupb             = andrew joe sam susan"
+      lines[1].should == "@groupc             = @groupb brandon jane"
+      lines[2].should == "@groupd             = @groupc larry"
+      lines[3].should == "@groupa             = @groupb bob"
+
+      # Cleanup
+      File.unlink(file)
+    end
+
+    it 'should raise a GroupDependencyError if there is a cyclic dependency' do
+      c = Gitolite::Config.init
+      c.filename = "test_deptree.conf"
+
+      # Build some groups out of order
+      g = Gitolite::Config::Group.new "groupa"
+      g.add_users "bob", "@groupb"
+      c.add_group(g)
+
+      g = Gitolite::Config::Group.new "groupb"
+      g.add_users "joe", "sam", "susan", "@groupc"
+      c.add_group(g)
+
+      g = Gitolite::Config::Group.new "groupc"
+      g.add_users "jane", "@groupa", "brandon"
+      c.add_group(g)
+
+      g = Gitolite::Config::Group.new "groupd"
+      g.add_users "larry", "@groupc"
+      c.add_group(g)
+
+      # Attempt to write the config file
+      lambda{ c.to_file('/tmp')}.should raise_error(Gitolite::Config::GroupDependencyError)
     end
   end
 

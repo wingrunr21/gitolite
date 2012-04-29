@@ -68,7 +68,8 @@ module Gitolite
       new_conf = File.join(path, filename)
       File.open(new_conf, "w") do |f|
         #Output groups
-        @groups.each_value {|group| f.write group.to_s }
+        dep_order = build_groups_depgraph
+        dep_order.each {|group| f.write group.to_s }
 
         gitweb_descs = []
         @repos.each do |k, v|
@@ -106,7 +107,7 @@ module Gitolite
           line = cleanup_config_line(l)
           next if line.empty? #lines are empty if we killed a comment
 
-          case line.strip
+          case line
             #found a repo definition
             when /^repo (.*)/
               #Empty our current context
@@ -199,8 +200,38 @@ module Gitolite
         end
       end
 
+      # Builds a dependency tree from the groups in order to ensure all groups
+      # are defined before they are used
+      def build_groups_depgraph
+        dp = ::Plexus::Digraph.new
+
+        # Add each group to the graph
+        @groups.each_value do |group|
+          # Select group names from the users
+          subgroups = group.users.select {|u| u =~ /^#{Group::PREPEND_CHAR}.*$/}
+                                 .map{|g| get_group g.gsub(Group::PREPEND_CHAR, '') }
+
+          subgroups.each do |subgroup|
+            dp.add_edge! subgroup, group
+          end
+        end
+
+        # Figure out if we have a good depedency graph
+        dep_order = dp.topsort
+
+        if dep_order.empty?
+          raise GroupDependencyError unless @groups.empty?
+        end
+
+        dep_order
+      end
+
       #Raised when something in a config fails to parse properly
       class ParseError < RuntimeError
+      end
+
+      # Raised when group dependencies cannot be suitably resolved for output
+      class GroupDependencyError < RuntimeError
       end
   end
 end
