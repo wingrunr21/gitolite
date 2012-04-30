@@ -4,8 +4,6 @@ This gem is designed to provide a Ruby interface to the {gitolite}[https://githu
 
 This gem can still have problems.  Please file an issue if you encounter a bug.  If you have a feature request, file one please.
 
-The gem is still listed as alpha on rubygems.  Once Issue #7 is resolved, the gem will move to 1.0
-
 ## Features ##
 * Allows for the creation and management of repos within gitolite
 * Allows for the creation and deletion of SSH keys within gitolite
@@ -21,7 +19,7 @@ The gem is still listed as alpha on rubygems.  Once Issue #7 is resolved, the ge
 
 ## Installation ##
 
-    gem install gitolite --pre
+    gem install gitolite
 
 ## Usage ##
 
