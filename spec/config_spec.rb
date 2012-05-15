@@ -381,6 +381,44 @@ describe Gitolite::Config do
       # Attempt to write the config file
       lambda{ c.to_file('/tmp')}.should raise_error(Gitolite::Config::GroupDependencyError)
     end
+
+    it 'should resolve group dependencies even when there are disconnected portions of the graph' do
+      c = Gitolite::Config.init
+      c.filename = "test_deptree.conf"
+
+      # Build some groups out of order
+      g = Gitolite::Config::Group.new "groupa"
+      g.add_users "bob", "timmy", "stephanie"
+      c.add_group(g)
+
+      g = Gitolite::Config::Group.new "groupb"
+      g.add_users "joe", "sam", "susan", "andrew"
+      c.add_group(g)
+
+      g = Gitolite::Config::Group.new "groupc"
+      g.add_users "jane", "earl", "brandon", "@groupa"
+      c.add_group(g)
+
+      g = Gitolite::Config::Group.new "groupd"
+      g.add_users "larry", "chris", "emily"
+      c.add_group(g)
+
+      # Write the config to a file
+      file = c.to_file('/tmp')
+
+      # Read the conf and make sure our order is correct
+      f = File.read(file)
+      lines = f.lines.map {|l| l.strip}
+
+      # Compare the file lines.  Spacing is important here since we are doing a direct comparision
+      lines[0].should == "@groupd             = chris emily larry"
+      lines[1].should == "@groupb             = andrew joe sam susan"
+      lines[2].should == "@groupa             = bob stephanie timmy"
+      lines[3].should == "@groupc             = @groupa brandon earl jane"
+
+      # Cleanup
+      File.unlink(file)
+    end
   end
 
   describe "#cleanup_config_line" do
