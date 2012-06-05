@@ -167,6 +167,9 @@ module Gitolite
             when /^include "(.+)"/
               #TODO: implement includes
               #ignore includes for now
+            when /^subconf (\S+)$/
+              #TODO: implement subconfs
+              #ignore subconfs for now
             else
               raise ParseError, "'#{line}' cannot be processed"
           end
