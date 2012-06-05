@@ -9,9 +9,6 @@ This gem can still have problems.  Please file an issue if you encounter a bug. 
 * Allows for the creation and deletion of SSH keys within gitolite
 * Allows for the bootstrapping of a gitolite-admin repository
 
-## Issues ##
-* Gem is not thread safe.  For now, the gem will change directories in order to perform git operations.  It will, however, return to the old working directory once it is finished.  I am looking into making the gem thread safe.
-
 ## Requirements ##
 * Ruby 1.8.x or 1.9.x
 * a working [gitolite](https://github.com/sitaramc/gitolite) installation
@@ -160,6 +157,9 @@ The gitolite gem, on the other hand, will <em>always</em> output groups so that 
 
     @groupa = bob joe sue sam
     @groupb = jim @groupa
+
+## Issues ##
+* Gem is not thread safe.  For now, the gem will change directories in order to perform git operations.  It will, however, return to the old working directory once it is finished.  I am looking into making the gem thread safe.  Note that this is only an issue on Rubies that do not have a GIL (ex jRuby or Rubinius)
 
 # Contributing #
 * Tests!  If you ask me to pull changes that are not adequately tested,  I'm not going to do it.
