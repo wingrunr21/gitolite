@@ -319,6 +319,29 @@ describe Gitolite::Config do
       lambda{ c.to_file('/home/test.rb') }.should raise_error(ArgumentError)
     end
 
+    it 'should ensure save group info when no group dependencies' do
+      c = Gitolite::Config.init
+      c.filename = "test_deptree.conf"
+
+      # Build some groups out of order
+      g = Gitolite::Config::Group.new "groupa"
+      g.add_users "bob", "@all"
+      c.add_group(g)
+
+      # Write the config to a file
+      file = c.to_file('/tmp')
+
+      # Read the conf and make sure our order is correct
+      f = File.read(file)
+      lines = f.lines.map {|l| l.strip}
+
+      # Compare the file lines.  Spacing is important here since we are doing a direct comparision
+      lines[0].should == "@groupa             = @all bob"
+
+      # Cleanup
+      File.unlink(file)
+    end
+
     it 'should resolve group dependencies such that all groups are defined before they are used' do
       c = Gitolite::Config.init
       c.filename = "test_deptree.conf"
@@ -337,7 +360,7 @@ describe Gitolite::Config do
       c.add_group(g)
 
       g = Gitolite::Config::Group.new "groupd"
-      g.add_users "larry", "@groupc"
+      g.add_users "larry", "@groupc", "@all"
       c.add_group(g)
 
       # Write the config to a file
@@ -350,7 +373,7 @@ describe Gitolite::Config do
       # Compare the file lines.  Spacing is important here since we are doing a direct comparision
       lines[0].should == "@groupb             = andrew joe sam susan"
       lines[1].should == "@groupc             = @groupb brandon jane"
-      lines[2].should == "@groupd             = @groupc larry"
+      lines[2].should == "@groupd             = @all @groupc larry"
       lines[3].should == "@groupa             = @groupb bob"
 
       # Cleanup
