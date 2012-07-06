@@ -46,7 +46,8 @@ module Gitolite
       options[:refex] ||= ""
       options[:user] ||= "git"
 
-      c = Config.init
+      #c = Config.init
+      c = Config.new
       r = Config::Repo.new(options[:repo] || "gitolite-admin")
       r.add_permission(options[:perm], options[:refex], options[:user])
       c.add_repo(r)
