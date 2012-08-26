@@ -213,8 +213,7 @@ module Gitolite
           dp.add_vertex! group
 
           # Select group names from the users
-          subgroups = group.users.select {|u| u =~ /^#{Group::PREPEND_CHAR}.*$/}
-                                 .map{|g| get_group g.gsub(Group::PREPEND_CHAR, '') }
+          subgroups = group.users.select {|u| u =~ /^#{Group::PREPEND_CHAR}.*$/}.map{|g| get_group g.gsub(Group::PREPEND_CHAR, '') }
 
           subgroups.each do |subgroup|
             dp.add_edge! subgroup, group
