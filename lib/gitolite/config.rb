@@ -72,13 +72,15 @@ module Gitolite
         dep_order.each {|group| f.write group.to_s }
 
         gitweb_descs = []
-        @repos.each do |k, v|
+        @repos.sort.each do |k, v|
+          f.write "\n"
           f.write v.to_s
 
           gwd = v.gitweb_description
           gitweb_descs.push(gwd) unless gwd.nil?
         end
 
+        f.write "\n"
         f.write gitweb_descs.join("\n")
       end
 
