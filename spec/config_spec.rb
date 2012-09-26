@@ -1,4 +1,4 @@
-require 'plexus'
+require 'gratr'
 require 'gitolite/config'
 require 'spec_helper'
 

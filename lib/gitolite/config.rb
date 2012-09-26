@@ -206,7 +206,7 @@ module Gitolite
       # Builds a dependency tree from the groups in order to ensure all groups
       # are defined before they are used
       def build_groups_depgraph
-        dp = ::Plexus::Digraph.new
+        dp = ::GRATR::Digraph.new
 
         # Add each group to the graph
         @groups.each_value do |group|

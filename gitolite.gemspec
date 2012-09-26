@@ -20,7 +20,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "simplecov", "~> 0.6.2"
   s.add_dependency "grit", "~> 2.5.0"
   s.add_dependency "hashery", "~> 1.5.0"
-  s.add_dependency "plexus", "~> 0.5.10"
+  s.add_dependency "gratr19", "~> 0.4.4.1"
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
