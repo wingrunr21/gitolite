@@ -158,6 +158,20 @@ describe Gitolite::Config::Repo do
 
   end
 
+  describe 'gitolite options' do
+    it 'should allow setting a gitolite option' do
+      master = "kenobi"
+      @repo.set_gitolite_option("mirror.master", master).should == master
+    end
+
+    it 'should allow deletion of an existing gitolite option' do
+      master = "kenobi"
+      @repo.set_gitolite_option("mirror.master", master)
+      @repo.unset_gitolite_option("mirror.master").should == master
+    end
+
+  end
+
   describe 'permission management' do
     it 'should combine two entries for the same permission and refex' do
       users = %w[bob joe susan sam bill]

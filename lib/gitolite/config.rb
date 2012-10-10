@@ -138,6 +138,15 @@ module Gitolite
               context.each do |c|
                 @repos[c].set_git_config(key, value)
               end
+            #repo gitolite option
+            when /^option (.+) = ?(.*)/
+              key = $1
+              value = $2
+
+              context.each do |c|
+                @repos[c].set_gitolite_option(key, value)
+              end
+            #group definition
             #group definition
             when /^#{Group::PREPEND_CHAR}(\S+) = ?(.*)/
               group = $1
