@@ -15,7 +15,6 @@ def version
 end
 
 # Standard tasks
-require 'rcov'
 RSpec::Core::RakeTask.new(:spec)
 task :test => :spec
 task :default => :spec
