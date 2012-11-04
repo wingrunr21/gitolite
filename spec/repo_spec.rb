@@ -161,15 +161,21 @@ describe Gitolite::Config::Repo do
   describe 'gitolite options' do
     it 'should allow setting a gitolite option' do
       master = "kenobi"
+      slaves = "one"
       @repo.set_gitolite_option("mirror.master", master).should == master
+      @repo.set_gitolite_option("mirror.slaves", slaves).should == slaves
+      @repo.options.length.should == 2
     end
 
     it 'should allow deletion of an existing gitolite option' do
       master = "kenobi"
+      slaves = "one"
       @repo.set_gitolite_option("mirror.master", master)
+      @repo.set_gitolite_option("mirror.slaves", slaves)
+      @repo.options.length.should == 2
       @repo.unset_gitolite_option("mirror.master").should == master
+      @repo.options.length.should == 1
     end
-
   end
 
   describe 'permission management' do

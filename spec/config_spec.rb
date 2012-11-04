@@ -67,6 +67,38 @@ describe Gitolite::Config do
         t.unlink
       end
     end
+
+    describe "git config settings" do
+      before :all do
+        @config = Gitolite::Config.new(File.join(conf_dir, 'complicated.conf'))
+      end
+
+      it 'should correctly read in git config settings' do
+        r = @config.get_repo(:gitolite)
+        r.config.length.should == 4
+      end
+    end
+
+    describe "gitolite options" do
+      before :all do
+        @config = Gitolite::Config.new(File.join(conf_dir, 'complicated.conf'))
+      end
+
+      it 'should correctly read in gitolite options' do
+        r = @config.get_repo(:foo)
+        r.options.length.should == 3
+      end
+
+      it 'should raise a ParseError when a value is not specified' do
+        t = Tempfile.new('bad_conf.conf')
+        t.write("repo foobar\n  option mirror.master =")
+        t.close
+
+        lambda { Gitolite::Config.new(t.path) }.should raise_error(Gitolite::Config::ParseError)
+
+        t.unlink
+      end
+    end
   end
 
   describe "#init" do

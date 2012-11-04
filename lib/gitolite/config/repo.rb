@@ -5,7 +5,7 @@ module Gitolite
     class Repo
       ALLOWED_PERMISSIONS = /-|C|R|RW\+?(?:C?D?|D?C?)M?/
 
-      attr_accessor :permissions, :name, :config, :option, :owner, :description
+      attr_accessor :permissions, :name, :config, :options, :owner, :description
 
       def initialize(name)
         #Store the perm hash in a lambda since we have to create a new one on every deny rule
@@ -16,7 +16,7 @@ module Gitolite
 
         @name = name
         @config = {} #git config
-        @option = {} #gitolite config
+        @options = {} #gitolite config
       end
 
       def clean_permissions
@@ -46,11 +46,11 @@ module Gitolite
       end
 
       def set_gitolite_option(key, value)
-        @option[key] = value
+        @options[key] = value
       end
 
       def unset_gitolite_option(key)
-        @option.delete(key)
+        @options.delete(key)
       end
 
       def to_s
@@ -68,7 +68,7 @@ module Gitolite
           repo += "  config " + k + " = " + v + "\n"
         end
 
-        @option.each do |k, v|
+        @options.each do |k, v|
           repo += "  option " + k + " = " + v + "\n"
         end
 

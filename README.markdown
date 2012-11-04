@@ -55,6 +55,18 @@ This method can only be called on an existing gitolite-admin repo.  If you need 
     #For a list of permissions, see http://sitaramc.github.com/gitolite/conf.html#gitolite
     repo.add_permission("RW+", "", "bob", "joe", "susan")
 
+    #Set a git config option to the repo
+    repo.set_git_config("hooks.mailinglist", "gitolite-commits@example.tld") # => "gitolite-commits@example.tld"
+
+    #Unset a git config option from the repo
+    repo.unset_git_config("hooks.mailinglist") # => "gitolite-commits@example.tld"
+
+    #Set a gitolite option to the repo
+    repo.set_gitolite_option("mirroring.master", "kenobi") # => "kenobi"
+
+    #Remove a gitolite option from the repo
+    repo.unset_gitolite_option("mirroring.master") # => "kenobi"
+
     #Add repo to config
     conf.add_repo(repo)
 
@@ -85,7 +97,6 @@ This method can only be called on an existing gitolite-admin repo.  If you need 
 
     key_string = File.read("/path/to/ssh/key.pub")
     key3 = Gitolite::SSHKey.from_string(key_string, "owner")
-
 
     #Add the keys
     ga_repo.add_key(key)
@@ -176,4 +187,4 @@ The gitolite gem, on the other hand, will <em>always</em> output groups so that 
 * support include tags
 * cleanup methods to make adding and removing easier (like add_key should accept an array of keys)
 * Make the gem thread safe
-* Rails integration via [gitolite-rails](https://www.github.com/wingrunr21/gitolite-rails)
+<!--* Rails integration via [gitolite-rails](https://www.github.com/wingrunr21/gitolite-rails)-->
