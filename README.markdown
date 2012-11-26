@@ -1,4 +1,4 @@
-# gitolite #
+# gitolite # [![Build Status](https://secure.travis-ci.org/wingrunr21/gitolite.png)](http://travis-ci.org/wingrunr21/gitolite)
 
 This gem is designed to provide a Ruby interface to the [gitolite](https://github.com/sitaramc/gitolite) git backend system.  I am aiming to provide all management functionality that is available via the gitolite-admin repository (like SSH keys, repository permissions, etc)
 
@@ -178,6 +178,7 @@ The gitolite gem, on the other hand, will <em>always</em> output groups so that 
 
 ### Contributors ###
 * Alexander Simonov - [simonoff](https://github.com/simonoff)
+* Pierre Guinoiseau - [peikk0](https://github.com/peikk0)
 
 ## Documentation ##
 * Rdoc is coming eventually
