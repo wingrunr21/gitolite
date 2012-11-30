@@ -175,6 +175,12 @@ describe Gitolite::SSHKey do
       s = SSHKey.from_file(key)
       s.location.should == 'desktop'
     end
+    
+    it 'location should be "foo-bar" for bob@foo-bar.pub' do
+      key = File.join(key_dir, 'bob@foo-bar.pub')
+      s = SSHKey.from_file(key)
+      s.location.should == 'foo-bar'
+    end
   end
 
   describe '#keys' do
