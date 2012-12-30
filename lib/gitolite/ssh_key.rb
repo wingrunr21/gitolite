@@ -79,5 +79,9 @@ module Gitolite
       @owner == key.owner &&
       @location == key.location
     end
+
+    def hash
+      [@owner, @location, @type, @blob, @email].hash
+    end
   end
 end

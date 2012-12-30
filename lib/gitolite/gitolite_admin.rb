@@ -1,3 +1,5 @@
+require File.join(File.dirname(__FILE__), "dirty_proxy")
+
 module Gitolite
   class GitoliteAdmin
     attr_accessor :gl_admin
@@ -77,6 +79,8 @@ module Gitolite
           @gl_admin.remove(to_remove)
 
           @ssh_keys.each_value do |key|
+            #Write only keys from sets that has been modified
+            next if key.respond_to?(:dirty?) && !key.dirty?
             key.each do |k|
               @gl_admin.add(k.to_file(@keydir))
             end
@@ -173,7 +177,7 @@ module Gitolite
       #keydir directory
       def load_keys(path = nil)
         path ||= File.join(@path, @keydir)
-        keys = Hash.new {|k,v| k[v] = []}
+        keys = Hash.new {|k,v| k[v] = DirtyProxy.new([])}
 
         list_keys(path).each do |key|
           new_key = SSHKey.from_file(File.join(path, key))
@@ -181,6 +185,8 @@ module Gitolite
 
           keys[owner] << new_key
         end
+        #Mark key sets as unmodified (for dirty checking)
+        keys.values.each{|set| set.clean_up!}
 
         keys
       end
