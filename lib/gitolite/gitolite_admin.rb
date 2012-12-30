@@ -1,6 +1,6 @@
 module Gitolite
   class GitoliteAdmin
-    attr_accessor :gl_admin, :ssh_keys, :config
+    attr_accessor :gl_admin
 
     CONF = "gitolite.conf"
     CONFDIR = "conf"
@@ -18,9 +18,6 @@ module Gitolite
       @conf = options[:conf] || CONF
       @confdir = options[:confdir] || CONFDIR
       @keydir = options[:keydir] || KEYDIR
-
-      # Load the ssh keys and the configuration
-      load_data
     end
 
     # This method will bootstrap a gitolite-admin repo
@@ -61,24 +58,28 @@ module Gitolite
       self.new(path)
     end
 
-    #Writes all aspects out to the file system
+    #Writes all changed aspects out to the file system
     #will also stage all changes
     def save
       Dir.chdir(@gl_admin.working_dir) do
-        #Process config file
-        new_conf = @config.to_file(@confdir)
-        @gl_admin.add(new_conf)
+        #Process config file (if loaded, i.e. may be modified)
+        if @config
+          new_conf = @config.to_file(@confdir)
+          @gl_admin.add(new_conf)
+        end
 
-        #Process ssh keys
-        files = list_keys(@keydir).map{|f| File.basename f}
-        keys = @ssh_keys.values.map{|f| f.map {|t| t.filename}}.flatten
+        #Process ssh keys (if loaded, i.e. may be modified)
+        if @ssh_keys
+          files = list_keys(@keydir).map{|f| File.basename f}
+          keys = @ssh_keys.values.map{|f| f.map {|t| t.filename}}.flatten
 
-        to_remove = (files - keys).map { |f| File.join(@keydir, f)}
-        @gl_admin.remove(to_remove)
+          to_remove = (files - keys).map { |f| File.join(@keydir, f)}
+          @gl_admin.remove(to_remove)
 
-        @ssh_keys.each_value do |key|
-          key.each do |k|
-            @gl_admin.add(k.to_file(@keydir))
+          @ssh_keys.each_value do |key|
+            key.each do |k|
+              @gl_admin.add(k.to_file(@keydir))
+            end
           end
         end
       end
@@ -98,7 +99,8 @@ module Gitolite
     # This method will destroy the in-memory data structures and reload everything
     # from the file system
     def reload!
-      load_data
+      @ssh_keys = load_keys
+      @config = load_config
     end
 
     #commits all staged changes and pushes back
@@ -132,12 +134,12 @@ module Gitolite
 
     def add_key(key)
       raise "Key must be of type Gitolite::SSHKey!" unless key.instance_of? Gitolite::SSHKey
-      @ssh_keys[key.owner] << key
+      ssh_keys[key.owner] << key
     end
 
     def rm_key(key)
       raise "Key must be of type Gitolite::SSHKey!" unless key.instance_of? Gitolite::SSHKey
-      @ssh_keys[key.owner].delete key
+      ssh_keys[key.owner].delete key
     end
 
     #Checks to see if the given path is a gitolite-admin repository
@@ -158,15 +160,19 @@ module Gitolite
         !Dir.glob(File.join(dir, 'conf', '*.conf')).empty?
     end
 
-    private
-      def load_data
-        @ssh_keys = load_keys(File.join(@path, @keydir))
-        @config = Config.new(File.join(@path, @confdir, @conf))
-      end
+    def ssh_keys
+      @ssh_keys ||= load_keys
+    end
 
+    def config
+      @config ||= load_config
+    end
+
+    private
       #Loads all .pub files in the gitolite-admin
       #keydir directory
-      def load_keys(path)
+      def load_keys(path = nil)
+        path ||= File.join(@path, @keydir)
         keys = Hash.new {|k,v| k[v] = []}
 
         list_keys(path).each do |key|
@@ -177,6 +183,11 @@ module Gitolite
         end
 
         keys
+      end
+
+      def load_config(path = nil)
+        path ||= File.join(@path, @confdir, @conf)
+        Config.new(path)
       end
 
       def list_keys(path)
